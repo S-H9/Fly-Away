@@ -1,7 +1,8 @@
-body
-{
-    font-family: 'Times New Roman', Times, serif, sans-serif;
-    background: linear-gradient(to right, #0d628a, #48a7d4);
+/*This is login.css file extendes login.html ,, named "index.php"*/
+
+body {
+    font-family: 'Times New Roman', Times, serif;
+    background: linear-gradient(to right, #142840, #48a7d4);
     margin: 0;
     padding: 0;
     display: flex;
@@ -34,8 +35,7 @@ body
 
 /* Input Field */
 .login-container input[type="text"],
-.login-container input[type="password"]
-{
+.login-container input[type="password"] {
     width: calc(100% - 40px);
     padding: 10px;
     margin: 10px 0;
@@ -47,7 +47,8 @@ body
 }
 
 /* Buttons */
-.login-container button {
+.login-container button
+{
     background-color: #4caf50;
     color: white;
     border: none;
@@ -63,16 +64,13 @@ body
 }
 
 /* Responsive Design */
-@media (max-width: 480px)
-{
-    .login-container
-    {
+@media (max-width: 480px) {
+    .login-container {
         width: 90%;
         padding: 15px;
     }
 
-    .login-container button
-    {
+    .login-container button {
         font-size: 14px;
         padding: 8px 15px;
     }

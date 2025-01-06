@@ -5,74 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fly Away - Home</title>
     <link rel="stylesheet" href="HomePage.css">
+    <script src="profile.js"></script>
 </head>
 <body>
     <nav class="navbar">
-        <img src="img.png" alt="Fly Away Logo">
+        <div class="logo">
+            <img src="img.png" alt="Airline Logo">
+        </div>
         <div class="nav-links">
-            <a href="HomePage.html">Home</a>
-            <a href="#">Flights</a>
-            <a href="#">Hotels</a>
-            <a href="#">Deals</a>
-            <a href="#">Contact</a>
-            <a href="login.html">Login</a>
+            <a href="#" class="active">Home</a>
+            <a href="Book.html">Book</a>
+            <a href="Flights.html">Flights</a>
+            <a href="#" onclick="toggleProfile()">Profile</a>
         </div>
     </nav>
 
-    <div class="hero">
-        <div class="hero-content">
-            <h1>Your Journey Begins Here</h1>
-            <p>Discover amazing destinations around the world</p>
-        </div>
-    </div>
+    <main class="main-content">
+        <div class="booking-card">
+            <div class="booking-tabs">
+                <a href="#" class="active">Book</a>
+                <a href="#">Manage</a>
+                <a href="#">Check-in</a>
+                <a href="#">Flight status</a>
+                <a href="#">Flight schedule</a>
+            </div>
 
-    <div class="search-bar">
-        <select>
-            <option>From</option>
-            <option>New York</option>
-            <option>London</option>
-            <option>Tokyo</option>
-        </select>
-        <select>
-            <option>To</option>
-            <option>Paris</option>
-            <option>Dubai</option>
-            <option>Singapore</option>
-        </select>
-        <input type="date" placeholder="Departure">
-        <input type="date" placeholder="Return">
-        <button>Search Flights</button>
-    </div>
+            <div class="additional-services">
+                <a href="#">Stopover</a>
+                <a href="#">Hotels</a>
+                <a href="#">Cars</a>
+                <a href="#">Umrah</a>
+            </div>
 
-    <div class="destinations">
-        <div class="destination-card">
-            <img src="paris.jpg" alt="Paris">
-            <div class="content">
-                <h3>Paris, France</h3>
-                <p>Starting from $499</p>
+            <div class="trip-type">
+                <label class="radio-container">
+                    <input type="radio" name="trip-type" checked>
+                    <span class="radio-label">Round trip</span>
+                </label>
+                <label class="radio-container">
+                    <input type="radio" name="trip-type">
+                    <span class="radio-label">One way</span>
+                </label>
+                <label class="radio-container">
+                    <input type="radio" name="trip-type">
+                    <span class="radio-label">Multi-city</span>
+                </label>
+                <div class="miles-toggle">
+                    <span>Book with Miles</span>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flight-search">
+                <div class="search-input">
+                    <label>From</label>
+                    <input type="text" placeholder="City or airport" value="Jeddah (JED)">
+                    <span class="plane-icon">✈</span>
+                </div>
+                <button class="swap-button">⇄</button>
+                <div class="search-input">
+                    <label>To</label>
+                    <input type="text" placeholder="City or airport">
+                    <span class="plane-icon">✈</span>
+                </div>
+            </div>
+
+            <div class="travel-alert">
+                <span class="info-icon">ⓘ</span>
+                <p>Read more about the latest travel requirements for your next destination</p>
+                <a href="#" class="learn-more">Learn more</a>
             </div>
         </div>
-        <div class="destination-card">
-            <img src="tokyo.jpg" alt="Tokyo">
-            <div class="content">
-                <h3>Tokyo, Japan</h3>
-                <p>Starting from $699</p>
+
+        <section class="destinations">
+            <h2>popular destinations to visit</h2>
+            <div class="destination-grid">
+                <div class="destination-card"></div>
+                <div class="destination-card"></div>
+                <div class="destination-card large"></div>
             </div>
-        </div>
-        <div class="destination-card">
-            <img src="dubai.jpg" alt="Dubai">
-            <div class="content">
-                <h3>Dubai, UAE</h3>
-                <p>Starting from $599</p>
-            </div>
-        </div>
-        <div class="destination-card">
-            <img src="bali.jpg" alt="Bali">
-            <div class="content">
-                <h3>Bali, Indonesia</h3>
-                <p>Starting from $799</p>
-            </div>
-        </div>
-    </div>
+        </section>
+    </main>
 </body>
 </html>

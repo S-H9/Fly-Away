@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fly Away - Book</title>
+    <!-- link rel="stylesheet" href="styles.css" -->
+    <link rel="stylesheet" href="book-styles.css">
+    <script src="profile.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="logo.png" alt="Airline Logo">
+        </div>
+        <div class="nav-links">
+            <a href="HomePage.html">Home</a>
+            <a href="#" class="active">Book</a>
+            <a href="Flights.html">Flights</a>
+            <a href="#" onclick="toggleProfile()">Profile</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="booking-form-container">
+            <h2>Book Your Flight</h2>
+            <form class="booking-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>From</label>
+                        <input type="text" placeholder="Departure City">
+                    </div>
+                    <div class="form-group">
+                        <label>To</label>
+                        <input type="text" placeholder="Arrival City">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Departure Date</label>
+                        <input type="date">
+                    </div>
+                    <div class="form-group">
+                        <label>Return Date</label>
+                        <input type="date">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Passengers</label>
+                        <select>
+                            <option>1 Adult</option>
+                            <option>2 Adults</option>
+                            <option>3 Adults</option>
+                            <option>4 Adults</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Class</label>
+                        <select>
+                            <option>Economy</option>
+                            <option>Business</option>
+                            <option>First Class</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="search-button">Search Flights</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Profile Popup -->
+    <div id="profilePopup" class="profile-popup">
+        <div class="popup-content">
+            <span class="close-btn" onclick="toggleProfile()">&times;</span>
+            <h2>Profile Settings</h2>
+            <div class="profile-form">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="userName" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="userEmail" placeholder="Enter your email">
+                </div>
+                <div class="profile-buttons">
+                    <button onclick="saveProfile()" class="save-btn">Save Changes</button>
+                    <button onclick="logout()" class="logout-btn">Log Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

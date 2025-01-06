@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fly Away - Flights</title>
+    <!-- link rel="stylesheet" href="styles.css" -->
+    <link rel="stylesheet" href="flights-styles.css">
+
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="logo.png" alt="Airline Logo">
+        </div>
+        <div class="nav-links">
+            <a href="HomePage.html">Home</a>
+            <a href="Book.html">Book</a>
+            <a href="#" class="active">Flights</a>
+            <a href="#" onclick="toggleProfile()">Profile</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="flights-container">
+            <div class="filters">
+                <h3>Filter Flights</h3>
+                <div class="filter-group">
+                    <label>Price Range</label>
+                    <input type="range" min="0" max="1000" value="500">
+                    <div class="price-labels">
+                        <span>$0</span>
+                        <span>$1000</span>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Time</label>
+                    <select>
+                        <option>Any Time</option>
+                        <option>Morning</option>
+                        <option>Afternoon</option>
+                        <option>Evening</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Stops</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox"> Non-stop</label>
+                        <label><input type="checkbox"> 1 Stop</label>
+                        <label><input type="checkbox"> 2+ Stops</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flights-list">
+                <!-- Sample Flight Cards -->
+                <div class="flight-card">
+                    <div class="flight-info">
+                        <div class="time">
+                            <span class="departure">09:00</span>
+                            <span class="duration">2h 30m</span>
+                            <span class="arrival">11:30</span>
+                        </div>
+                        <div class="route">
+                            <span>JFK</span>
+                            <span class="arrow">→</span>
+                            <span>LAX</span>
+                        </div>
+                    </div>
+                    <div class="price">
+                        <span>$299</span>
+                        <button class="book-btn">Select</button>
+                    </div>
+                </div>
+
+                <!-- Add more flight cards as needed -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Profile Popup (same as in Book.html) -->
+    <div id="profilePopup" class="profile-popup">
+        <div class="popup-content">
+            <span class="close-btn" onclick="toggleProfile()">&times;</span>
+            <h2>Profile Settings</h2>
+            <div class="profile-form">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="userName" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="userEmail" placeholder="Enter your email">
+                </div>
+                <div class="profile-buttons">
+                    <button onclick="saveProfile()" class="save-btn">Save Changes</button>
+                    <button onclick="logout()" class="logout-btn">Log Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="profile.js"></script>
+</body>
+</html>

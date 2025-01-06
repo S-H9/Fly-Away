@@ -1,7 +1,7 @@
 body
 {
     font-family: 'Times New Roman', Times, serif;
-    background: linear-gradient(to right, #0d628a, #48a7d4);
+    background: linear-gradient(to right, #142840, #48a7d4);
     margin: 0;
     padding: 0;
     display: flex;
@@ -11,7 +11,7 @@ body
     color: #fff;
 }
 
-.register-container
+.register-container 
 {
     background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -32,8 +32,7 @@ body
 
 .register-container input[type="text"],
 .register-container input[type="password"],
-.register-container input[type="email"]
-{
+.register-container input[type="email"] {
     width: calc(100% - 40px);
     padding: 10px;
     margin: 10px 0;
@@ -54,24 +53,18 @@ body
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    width: calc(100% - 40px);
-    margin-top: 10px;
 }
 
-.register-container button:hover
-{
+.register-container button:hover {
     background-color: #45a049;
 }
 
-@media (max-width: 480px)
-{
-    .register-container
-    {
+@media (max-width: 480px) {
+    .register-container {
         width: 90%;
         padding: 15px;
     }
-    .register-container button
-    {
+    .register-container button {
         font-size: 14px;
         padding: 8px 15px;
     }
