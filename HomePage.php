@@ -1,3 +1,32 @@
+<?php
+// Place this at the beginning of HomePage.php
+session_start();
+
+// Function to check if session is valid
+function checkSession() {
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: index.php");
+        exit();
+    }
+    
+    // Optional: Check last activity time
+    $inactive = 1800; // 30 minutes
+    if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactive)) {
+        // Session has expired
+        session_unset();
+        session_destroy();
+        header("Location: index.php");
+        exit();
+    }
+    
+    // Update last activity time
+    $_SESSION['last_activity'] = time();
+}
+
+// Check session on page load
+checkSession();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
