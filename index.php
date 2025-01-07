@@ -1,11 +1,11 @@
 <?php
 session_start();
 
-// Check if user is already logged in
-if(isset($_SESSION['user_id'])) {
-    header("Location: HomePage.html");
-    exit();
-}
+// // Check if user is already logged in
+// if(isset($_SESSION['user_id'])) {
+//     header("Location: HomePage.php");
+//     exit();
+// }
 
 // Database connection
 $db_host = "localhost";
