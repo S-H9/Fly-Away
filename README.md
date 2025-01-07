@@ -6,24 +6,9 @@
 
 ## Features 
 
-1. *User Login*:
-- Users provide their username and password to log in.
+1. * registration*:
+    - To create a new account, users navigate to the registration page and input required details such as username, password. The system validates the data to ensure it meets criteria, such as unique usernames. Before storing, passwords are hashed using secure algorithms (e.g., bcrypt) to enhance security, ensuring that the actual password is not saved. The user data, including the hashed password, is then securely stored in a database..
 
-- Authentication is performed by validating the provided credentials against the stored hashed passwords in the database.
-
-2. *Secure Password Handling*:
-- Passwords are hashed being stored in the database.
-
-- Salting ensures that even users with the same password have unique hash values.
-
-- The system includes measures to prevent brute-force attacks, such as rate-limiting login attempts.
-
-3. *Forgot Password*:
-- Users can request a password reset link by entering their registered email address.
-
-- A secure, time-sensitive token is generated and sent to the user’s email.
-
-- The user can reset their password via the link.
-
-4. *Account Recovery*:
-- Provides an alternate recovery mechanism, such as answering security questions or multi-factor authentication.
+      
+2. * Login*:
+- The "Login" feature allows users to access their accounts by entering their username and password. When the user submits their credentials, the system checks the database for a matching username. For security, passwords are not stored in plain text; instead, they are stored as hashed values During login, the system hashes the entered password and compares it with the stored hashed version in the database. If they match, the user is authenticated and granted access. This method ensures that even if the database is compromised, the actual passwords remain secure, as the hashes are computationally difficult to reverse.
