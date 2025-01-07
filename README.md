@@ -11,6 +11,7 @@ Version (8.2.12 / PHP 8.2.12) Size (149 Mb)
 Link: **https://www.apachefriends.org/download.html**
 - Press the **"Start"** button in **"Apache"** and also in **"Mysql"**.
 - Press the **"Admin"** button in **"Mysql"** to open a page for the database **"phpMyAdmin"** Create a database **"New"** Name the database **"Fly_away"** and place the sent code:
+  
     CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
