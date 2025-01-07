@@ -1,6 +1,8 @@
+/*This is login.css file extendes login.html ,, named "index.php"*/
+
 body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(to right, #2c3e50, #4ca1af);
+    font-family: 'Times New Roman', Times, serif;
+    background: linear-gradient(to right, #142840, #48a7d4);
     margin: 0;
     padding: 0;
     display: flex;
@@ -11,7 +13,8 @@ body {
 }
 
 /* Container for Input and Buttons */
-.login-container {
+.login-container
+{
     background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: 15px;
@@ -22,7 +25,8 @@ body {
 }
 
 /* Profile Image */
-.login-container img {
+.login-container img
+{
     width: 50%;
     height: auto;
     object-fit: cover; /* Ensures the image fills the container without distortion */
@@ -43,7 +47,8 @@ body {
 }
 
 /* Buttons */
-.login-container button {
+.login-container button
+{
     background-color: #4caf50;
     color: white;
     border: none;

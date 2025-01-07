@@ -1,3 +1,5 @@
+<!--This is login.html file ,, named "index.php"-->
+
 <?php
 session_start();
 
@@ -37,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             
-            header("Location: HomePage.html");
+            header("Location: HomePage.php");
             exit();
         } else {
             $error = "Invalid username or password";
@@ -54,14 +56,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fly Away</title>
-    <style>
-        /* Your existing CSS here */
-    </style>
-<link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="login.css">
 </head>
 <body>
     <div class="login-container">
-        <img src="img.png" alt="Fly Away Logo">
+        <img src="imges/img.png" alt="Fly Away Logo">
         <h1>Login</h1>
         <?php if (isset($error)) { ?>
             <p style="color: #ff6b6b;"><?php echo $error; ?></p>
