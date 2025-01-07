@@ -5,6 +5,22 @@
  Our software aims to reduce the complexity of travel arrangements to provide an intuitive
  platform that saves time.
 ## Installation
+- Download **"XAMPP"** according to the device version, Windows, Mac, etc 
+Version (8.2.12 / PHP 8.2.12) Size (149 Mb)
+
+Link: **https://www.apachefriends.org/download.html**
+- Press the **"Start"** button in **"Apache"** and also in **"Mysql"**.
+- Press the **"Admin"** button in **"Mysql"** to open a page for the database **"phpMyAdmin"** Create a database **"New"** Name the database **"Fly_away"** and place the sent code:
+  
+    CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP );
+  
+And press the **"Start or Execute"** button.
+- Press the **"Explorer"** button and place the **"Fly away"** files in the **"htdocs"** file.
+- Press the **"Admin"** button in **"“Apache"** and the web page will open with you.
 ## Usage
 ## Features 
 ### 1-Registration:
