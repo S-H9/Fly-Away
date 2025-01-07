@@ -33,13 +33,164 @@ checkSession();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fly-Away - Home</title>
-    <link rel="stylesheet" href="HomePage.css">
     <link rel="stylesheet" href="Profile2.css">
     <script src="Profile2.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0b587c, #48a7d4);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background-color: #1a365d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            font-weight: bold;
+        }
+
+        .hero-section {
+            position: relative;
+            height: 50vh;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: white;
+            padding-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .hero-section .carousel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            animation: scrollImages 20s linear infinite;
+            z-index: 1;
+        }
+
+        .hero-section .carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            flex-shrink: 0;
+            animation: fadeInOut 10s ease-in-out infinite;
+        }
+
+        .hero-section .hero-text {
+            position: relative;
+            z-index: 2;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        @keyframes scrollImages {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .quick-bar {
+            margin-top: -5rem; /* Adjust spacing to align with the bottom half of the page */
+            background-color: rgba(255, 255, 255, 0.95);
+            margin: 2rem auto;
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 85%;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .destination-card {
+            display: inline-block;
+            margin: 1rem;
+            text-align: center;
+        }
+
+        .destination-card img {
+            width: 200px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .destination-card h3 {
+            margin: 0.5rem 0;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">
+            <img src="imges/img.png" alt="Fly Away Logo">
         </div>
         <div class="nav-links">
             <a href="#" class="active">Home</a>
@@ -48,13 +199,29 @@ checkSession();
             <a href="#" onclick="toggleProfile()">Profile</a>
         </div>
     </nav>
+    <div class="hero-section">
+        <div class="carousel">
+            <img src="imges/img2.jpg" alt="Beach">
+            <img src="imges/img4.jpeg" alt="Mountains">
+            <img src="imges/img3.jpg" alt="City">
+            <img src="imges/img9.webp" alt="Desert">
+            <img src="imges/img8.jpg" alt="Desert">
+            <img src="imges/img10.webp" alt="Desert">
+        </div>
+        <div class="hero-text">
+            <h1>Welcome to Fly-Away</h1>
+            <p>Your gateway to the world's most exciting destinations!</p>
+            <button>Explore Now</button>
+        </div>
+    </div>
 
     <div class="quick-bar">
         <form class="search-form">
-            <input type="text" placeholder="From">
-            <input type="text" placeholder="To">
-            <input type="date" placeholder="Date">
-            <select>
+            <input type="text" placeholder="From" required>
+            <input type="text" placeholder="To" required>
+            <input type="date" placeholder="Date" required>
+            <select required>
+                <option value="">Select Passengers</option>
                 <option>1 Passenger</option>
                 <option>2 Passengers</option>
                 <option>3 Passengers</option>
@@ -65,18 +232,18 @@ checkSession();
 
     <div class="destinations">
         <div class="destination-card">
-            <img src="/api/placeholder/400/300" alt="Destination 1">
-            <h3>Popular Destination 1</h3>
-            <p>Starting from $299</p>
+            <img src="imges/img7.jpg" alt="Paris">
+            <h3>Paris, France</h3>
+            <p>Starting from $599</p>
         </div>
         <div class="destination-card">
-            <img src="/api/placeholder/400/300" alt="Destination 2">
-            <h3>Popular Destination 2</h3>
-            <p>Starting from $399</p>
+            <img src="imges/img5.jpg" alt="Tokyo">
+            <h3>Tokyo, Japan</h3>
+            <p>Starting from $899</p>
         </div>
         <div class="destination-card">
-            <img src="/api/placeholder/400/300" alt="Destination 3">
-            <h3>Popular Destination 3</h3>
+            <img src="imges/img6.webp" alt="New York">
+            <h3>New York, USA</h3>
             <p>Starting from $499</p>
         </div>
     </div>

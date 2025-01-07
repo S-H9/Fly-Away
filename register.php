@@ -93,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <div class="register-container">
-        <img src="img.png" alt="Fly Away Logo">
+        <img src="imges/img.png" alt="Fly Away Logo">
         <h1>Register</h1>
         <?php if ($error): ?>
             <p class="error"><?= htmlspecialchars($error); ?></p>
