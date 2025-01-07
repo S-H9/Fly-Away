@@ -43,29 +43,43 @@ body {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-.quick-bar {
-    background-color: rgba(255, 255, 255, 0.9);
-    margin: 2rem auto;
-    padding: 2rem;
-    border-radius: 15px;
+.flights-container {
     width: 80%;
+    margin: 2rem auto;
+}
+
+.flight-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.search-form {
+.flight-info {
     display: flex;
-    gap: 1rem;
-    justify-content: space-between;
+    gap: 2rem;
+    align-items: center;
 }
 
-.search-form input, .search-form select {
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    flex: 1;
+.flight-route {
+    text-align: center;
 }
 
-.search-form button {
+.flight-time {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.flight-duration {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.book-button {
     background-color: #3498db;
     color: white;
     border: none;
@@ -74,26 +88,12 @@ body {
     cursor: pointer;
 }
 
-.destinations {
-    margin: 2rem auto;
-    width: 80%;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
+.book-button:hover {
+    background-color: #2980b9;
 }
 
-.destination-card {
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 1rem;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.destination-card img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+.flight-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #3498db;
 }

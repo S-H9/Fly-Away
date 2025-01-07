@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fly Away - Home</title>
+    <title>Fly-Away - Home</title>
     <link rel="stylesheet" href="HomePage.css">
-    <script src="profile.js"></script>
+    <link rel="stylesheet" href="Profile2.css">
+    <script src="Profile2.js"></script>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">
-            <img src="img.png" alt="Airline Logo">
         </div>
         <div class="nav-links">
             <a href="#" class="active">Home</a>
@@ -20,74 +20,66 @@
         </div>
     </nav>
 
-    <main class="main-content">
-        <div class="booking-card">
-            <div class="booking-tabs">
-                <a href="#" class="active">Book</a>
-                <a href="#">Manage</a>
-                <a href="#">Check-in</a>
-                <a href="#">Flight status</a>
-                <a href="#">Flight schedule</a>
-            </div>
+    <div class="quick-bar">
+        <form class="search-form">
+            <input type="text" placeholder="From">
+            <input type="text" placeholder="To">
+            <input type="date" placeholder="Date">
+            <select>
+                <option>1 Passenger</option>
+                <option>2 Passengers</option>
+                <option>3 Passengers</option>
+            </select>
+            <button type="submit">Search Flights</button>
+        </form>
+    </div>
 
-            <div class="additional-services">
-                <a href="#">Stopover</a>
-                <a href="#">Hotels</a>
-                <a href="#">Cars</a>
-                <a href="#">Umrah</a>
-            </div>
-
-            <div class="trip-type">
-                <label class="radio-container">
-                    <input type="radio" name="trip-type" checked>
-                    <span class="radio-label">Round trip</span>
-                </label>
-                <label class="radio-container">
-                    <input type="radio" name="trip-type">
-                    <span class="radio-label">One way</span>
-                </label>
-                <label class="radio-container">
-                    <input type="radio" name="trip-type">
-                    <span class="radio-label">Multi-city</span>
-                </label>
-                <div class="miles-toggle">
-                    <span>Book with Miles</span>
-                    <label class="switch">
-                        <input type="checkbox">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="flight-search">
-                <div class="search-input">
-                    <label>From</label>
-                    <input type="text" placeholder="City or airport" value="Jeddah (JED)">
-                    <span class="plane-icon">✈</span>
-                </div>
-                <button class="swap-button">⇄</button>
-                <div class="search-input">
-                    <label>To</label>
-                    <input type="text" placeholder="City or airport">
-                    <span class="plane-icon">✈</span>
-                </div>
-            </div>
-
-            <div class="travel-alert">
-                <span class="info-icon">ⓘ</span>
-                <p>Read more about the latest travel requirements for your next destination</p>
-                <a href="#" class="learn-more">Learn more</a>
-            </div>
+    <div class="destinations">
+        <div class="destination-card">
+            <img src="/api/placeholder/400/300" alt="Destination 1">
+            <h3>Popular Destination 1</h3>
+            <p>Starting from $299</p>
         </div>
-
-        <section class="destinations">
-            <h2>popular destinations to visit</h2>
-            <div class="destination-grid">
-                <div class="destination-card"></div>
-                <div class="destination-card"></div>
-                <div class="destination-card large"></div>
+        <div class="destination-card">
+            <img src="/api/placeholder/400/300" alt="Destination 2">
+            <h3>Popular Destination 2</h3>
+            <p>Starting from $399</p>
+        </div>
+        <div class="destination-card">
+            <img src="/api/placeholder/400/300" alt="Destination 3">
+            <h3>Popular Destination 3</h3>
+            <p>Starting from $499</p>
+        </div>
+    </div>
+<!------------------------------------------------------------------------------------------->
+    <!-- Add this HTML just before the closing </body> tag in all pages -->
+<div id="profilePopup" class="profile-popup">
+    <div class="popup-content">
+        <span class="close-btn" onclick="toggleProfile()">&times;</span>
+        <h2>Profile Settings</h2>
+        <form id="profileForm" class="profile-form">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" value="John Doe">
             </div>
-        </section>
-    </main>
+            <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" id="currentPassword">
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword">
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input type="password" id="confirmPassword">
+            </div>
+            <div class="button-group">
+                <button type="submit" class="save-btn">Save Changes</button>
+                <button type="button" class="signout-btn" onclick="signOut()">Sign Out</button>
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>
