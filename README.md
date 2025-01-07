@@ -7,7 +7,7 @@
 ## Installation
 ## Usage
 ## Features 
-**1- Registration:**
+### 1- Registration:
 - To create a new account, users navigate to the registration page and input required details such as username, password and Email. The system validates the data to ensure it meets criteria, such as unique usernames. Before storing, passwords are hashed using secure algorithms (e.g., bcrypt) to enhance security, ensuring that the actual password is not saved. The user data, including the hashed password, is then securely stored in a database.
   
 ### 2-Login:
