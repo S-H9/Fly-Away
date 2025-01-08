@@ -2,17 +2,24 @@
 session_start();
 
 // Database connection
-$db_host = "localhost";
-$db_user = "root";        
-$db_pass = "";            
-$db_name = "fly_away";
+$db_config = [
+    'host' => 'localhost',
+    'user' => 'root',
+    'pass' => '',
+    'name' => 'fly_away'
+];
 
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+try {
+    $conn = new mysqli($db_config['host'], $db_config['user'], $db_config['pass'], $db_config['name']);
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
+    $conn->set_charset("utf8mb4");
+} catch (Exception $e) {
+    die("Database connection error. Please try again later.");
 }
 
-// Check if user is logged in
+// Session security
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -25,37 +32,66 @@ $success_message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['book_flight'])) {
     $flight_id = $_POST['flight_id'];
     $user_id = $_SESSION['user_id'];
-    $passengers = $_POST['passengers'];
     $class = $_POST['class'];
+    $seat_number = $_POST['seat_number'];
     
-    // Check if flight is still available
-    $check_sql = "SELECT COUNT(*) as booked_seats FROM bookings WHERE flight_id = ?";
-    $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("i", $flight_id);
-    $check_stmt->execute();
-    $booked_seats = $check_stmt->get_result()->fetch_assoc()['booked_seats'];
+    // Start transaction
+    $conn->begin_transaction();
     
-    if ($booked_seats + $passengers <= 60) {
-        $insert_sql = "INSERT INTO bookings (user_id, flight_id, passengers, class, status) 
-                      VALUES (?, ?, ?, ?, 'confirmed')";
+    try {
+        // Check if seat is available
+        $check_sql = "SELECT COUNT(*) as seat_taken FROM bookings 
+                     WHERE flight_id = ? AND seat_number = ?";
+        $check_stmt = $conn->prepare($check_sql);
+        $check_stmt->bind_param("is", $flight_id, $seat_number);
+        $check_stmt->execute();
+        $is_taken = $check_stmt->get_result()->fetch_assoc()['seat_taken'];
+        
+        if ($is_taken) {
+            throw new Exception("Selected seat is no longer available. Please choose another seat.");
+        }
+        
+        // Calculate price based on class
+        $price_sql = "SELECT price FROM flights WHERE flight_id = ?";
+        $price_stmt = $conn->prepare($price_sql);
+        $price_stmt->bind_param("i", $flight_id);
+        $price_stmt->execute();
+        $base_price = $price_stmt->get_result()->fetch_assoc()['price'];
+        
+        // Apply class multiplier
+        $price_multiplier = [
+            'economy' => 1,
+            'business' => 1.5,
+            'first' => 2
+        ];
+        $final_price = $base_price * $price_multiplier[$class];
+        
+        // Insert booking
+        $insert_sql = "INSERT INTO bookings (user_id, flight_id, class, seat_number, price, status) 
+                      VALUES (?, ?, ?, ?, ?, 'confirmed')";
         $insert_stmt = $conn->prepare($insert_sql);
-        $insert_stmt->bind_param("iiis", $user_id, $flight_id, $passengers, $class);
+        $insert_stmt->bind_param("iissd", $user_id, $flight_id, $class, $seat_number, $final_price);
         
         if ($insert_stmt->execute()) {
-            $success_message = "Flight booked successfully!";
+            $conn->commit();
+            $success_message = "Flight booked successfully! Your seat {$seat_number} has been reserved.";
         } else {
-            $error_message = "Error booking flight. Please try again.";
+            throw new Exception("Error booking flight. Please try again.");
         }
-    } else {
-        $error_message = "Not enough seats available.";
+    } catch (Exception $e) {
+        $conn->rollback();
+        $error_message = $e->getMessage();
     }
 }
 
-// Fetch all available flights
+// Fetch available flights
 $flights_sql = "SELECT f.*, 
-               (SELECT COUNT(*) FROM bookings b WHERE b.flight_id = f.flight_id) as booked_seats
+               (SELECT COUNT(*) FROM bookings b WHERE b.flight_id = f.flight_id) as booked_seats,
+               GROUP_CONCAT(b.seat_number) as taken_seats
                FROM flights f 
+               LEFT JOIN bookings b ON f.flight_id = b.flight_id
                WHERE f.departure_time > NOW()
+               GROUP BY f.flight_id
                ORDER BY f.departure_time ASC";
 $flights_result = $conn->query($flights_sql);
 ?>
@@ -63,10 +99,13 @@ $flights_result = $conn->query($flights_sql);
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fly Away - Book Your Flight</title>
+    <link rel="stylesheet" href="css/book.css">
+    <style>
 
-<style>
-
-/* Base Styles */
+        /* Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -75,7 +114,7 @@ $flights_result = $conn->query($flights_sql);
 }
 
 body {
-    background: linear-gradient(135deg, #0d628a, #48a7d4);
+    background: linear-gradient(135deg, #0b587c, #48a7d4);
     min-height: 100vh;
 }
 
@@ -154,10 +193,31 @@ body {
     width: 90%;
     max-width: 1200px;
     margin: 2rem auto;
-    background-color: rgba(255, 255, 255, 0.95);
     padding: 2rem;
+    background-color: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Messages */
+.message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+.error {
+    background-color: #fee2e2;
+    color: #dc2626;
+    border-left: 4px solid #dc2626;
+}
+
+.success {
+    background-color: #dcfce7;
+    color: #16a34a;
+    border-left: 4px solid #16a34a;
 }
 
 /* Flight Cards */
@@ -196,70 +256,132 @@ body {
 }
 
 .arrow {
-    color: #0d628a;
+    color: #0b587c;
     font-size: 1.5rem;
 }
 
-.flight-date {
+.flight-details, .flight-time {
     color: #666;
     font-size: 0.9rem;
 }
 
-/* Flight Details */
-.flight-details {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+/* Seat Selection */
+.seat-selection {
+    margin-top: 1.5rem;
+    width: 100%;
+    overflow-x: auto; /* Allows horizontal scrolling if needed */
+}
+
+.seat-map {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    min-width: fit-content; /* Ensures content doesn't compress */
+    padding: 1rem;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 40px; /* Minimum height for seats */
+}
+
+.seat {
+    min-width: 35px;
+    width: 35px;
+    height: 35px;
+    border: 2px solid #0b587c;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    flex-shrink: 0; /* Prevents seat compression */
+}
+
+.aisle {
+    min-width: 20px;
+    width: 20px;
+    flex-shrink: 0; /* Prevents aisle compression */
+}
+
+/* Make the seat map container scrollable on small screens */
+@media (max-width: 768px) {
+    .seat-selection {
+        max-width: 100%;
+    }
+    
+    .seat-map {
+        margin: 1rem auto;
+    }
+
+    .seat {
+        min-width: 30px;
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .seat {
+        min-width: 25px;
+        width: 25px;
+        height: 25px;
+        font-size: 0.7rem;
+    }
+
+    .aisle {
+        min-width: 15px;
+        width: 15px;
+    }
+}
+
+/* Form Elements */
+.form-group {
     margin-bottom: 1.5rem;
 }
 
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-}
-
-.label {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.value {
+label {
+    display: block;
+    margin-bottom: 0.5rem;
     font-weight: bold;
     color: #333;
 }
 
-.price {
-    color: #0d628a;
-    font-size: 1.3rem;
-}
-
-/* Booking Options */
-.booking-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
 select {
+    width: 100%;
     padding: 0.8rem;
     border: 2px solid #ddd;
     border-radius: 8px;
     font-size: 1rem;
-    width: 100%;
+    margin-bottom: 1rem;
     outline: none;
     transition: border-color 0.3s ease;
 }
 
 select:focus {
-    border-color: #0d628a;
+    border-color: #0b587c;
 }
 
+/* Price Display */
+.price-display {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    text-align: right;
+    font-weight: bold;
+}
+
+/* Book Button */
 .book-button {
     width: 100%;
     padding: 1rem;
-    background: #0d628a;
+    background: #0b587c;
     color: white;
     border: none;
     border-radius: 8px;
@@ -272,36 +394,7 @@ select:focus {
 .book-button:hover {
     background: #48a7d4;
     transform: translateY(-2px);
-}
-
-/* Status Messages */
-.message {
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    text-align: center;
-    font-weight: bold;
-}
-
-.error {
-    background-color: #fee2e2;
-    color: #dc2626;
-    border-left: 4px solid #dc2626;
-}
-
-.success {
-    background-color: #dcfce7;
-    color: #16a34a;
-    border-left: 4px solid #16a34a;
-}
-
-.sold-out {
-    text-align: center;
-    padding: 1rem;
-    background: #fee2e2;
-    color: #dc2626;
-    border-radius: 8px;
-    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */
@@ -315,14 +408,6 @@ select:focus {
         grid-template-columns: 1fr;
     }
 
-    .flight-details {
-        grid-template-columns: 1fr;
-    }
-
-    .booking-options {
-        grid-template-columns: 1fr;
-    }
-
     .nav-links {
         gap: 1rem;
     }
@@ -331,19 +416,38 @@ select:focus {
         padding: 0.6rem 1rem;
         font-size: 1rem;
     }
+
+    .seat {
+        width: 30px;
+        height: 30px;
+        font-size: 0.7rem;
+    }
 }
 
-</style>
+@media (max-width: 480px) {
+    .navbar {
+        padding: 1rem;
+    }
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fly Away - Book</title>
-    <link rel="stylesheet" href="Profile2.css">
-    <!-- Your existing CSS remains the same -->
+    .nav-links a {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .flight-cities {
+        font-size: 1rem;
+    }
+
+    .seat {
+        width: 25px;
+        height: 25px;
+        font-size: 0.6rem;
+    }
+}
+
+    </style>
 </head>
 <body>
-
-
     <nav class="navbar">
         <div class="logo">
             <img src="imges/img.png" alt="Fly Away Logo">
@@ -367,7 +471,7 @@ select:focus {
     </nav>
 
     <div class="booking-container">
-        <h2>Available Flights</h2>
+        <h1>Available Flights</h1>
         
         <?php if ($error_message): ?>
             <div class="message error"><?php echo htmlspecialchars($error_message); ?></div>
@@ -380,66 +484,89 @@ select:focus {
         <div class="flights-grid">
             <?php if ($flights_result->num_rows > 0): ?>
                 <?php while ($flight = $flights_result->fetch_assoc()): ?>
-                    <?php $available_seats = 60 - $flight['booked_seats']; ?>
                     <div class="flight-card">
                         <div class="flight-header">
                             <div class="flight-cities">
-                                <span class="departure"><?php echo htmlspecialchars($flight['departure_city']); ?></span>
+                                <span><?php echo htmlspecialchars($flight['departure_city']); ?></span>
                                 <span class="arrow">✈️</span>
-                                <span class="arrival"><?php echo htmlspecialchars($flight['arrival_city']); ?></span>
+                                <span><?php echo htmlspecialchars($flight['arrival_city']); ?></span>
                             </div>
-                            <div class="flight-date">
-                                <?php echo date('F j, Y', strtotime($flight['departure_time'])); ?>
-                            </div>
-                        </div>
-                        
-                        <div class="flight-details">
-                            <div class="detail-item">
-                                <span class="label">Departure</span>
-                                <span class="value"><?php echo date('H:i', strtotime($flight['departure_time'])); ?></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="label">Arrival</span>
-                                <span class="value"><?php echo date('H:i', strtotime($flight['arrival_time'])); ?></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="label">Available Seats</span>
-                                <span class="value"><?php echo $available_seats; ?></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="label">Price</span>
-                                <span class="value price">$<?php echo number_format($flight['price'], 2); ?></span>
+                            <div class="flight-time">
+                                <div>Departure: <?php echo date('d M Y, H:i', strtotime($flight['departure_time'])); ?></div>
+                                <div>Arrival: <?php echo date('d M Y, H:i', strtotime($flight['arrival_time'])); ?></div>
                             </div>
                         </div>
+                            
+                        <form method="POST" class="booking-form">
+                            <input type="hidden" name="flight_id" value="<?php echo $flight['flight_id']; ?>">
+                            
+                            <div class="form-group">
+                                <label>Select Class:</label>
+                                <select name="class" required onchange="updatePrice(this, <?php echo $flight['price']; ?>)">
+                                    <option value="economy">Economy ($<?php echo number_format($flight['price'], 2); ?>)</option>
+                                    <option value="business">Business ($<?php echo number_format($flight['price'] * 1.5, 2); ?>)</option>
+                                    <option value="first">First Class ($<?php echo number_format($flight['price'] * 2, 2); ?>)</option>
+                                </select>
+                            </div>
 
-                        <?php if ($available_seats > 0): ?>
-                            <form method="POST" class="booking-form">
-                                <input type="hidden" name="flight_id" value="<?php echo $flight['flight_id']; ?>">
-                                <div class="booking-options">
-                                    <select name="passengers" required class="passenger-select">
-                                        <?php for($i = 1; $i <= min(5, $available_seats); $i++): ?>
-                                            <option value="<?php echo $i; ?>"><?php echo $i; ?> Passenger<?php echo $i > 1 ? 's' : ''; ?></option>
-                                        <?php endfor; ?>
-                                    </select>
-                                    <select name="class" required class="class-select">
-                                        <option value="economy">Economy</option>
-                                        <option value="business">Business</option>
-                                        <option value="first">First Class</option>
-                                    </select>
+                            <div class="seat-selection">
+                                <label>Select Seat:</label>
+                                <div class="seat-map" data-taken="<?php echo htmlspecialchars($flight['taken_seats'] ?? ''); ?>">
+                                    <?php 
+                                    $taken_seats = explode(',', $flight['taken_seats'] ?? '');
+                                    for ($row = 'A'; $row <= 'F'; $row++) {
+                                        echo "<div class='seat-row'>";
+                                        for ($col = 1; $col <= 10; $col++) {
+                                            $seat = $row . $col;
+                                            $is_taken = in_array($seat, $taken_seats);
+                                            $class = $is_taken ? 'seat taken' : 'seat';
+                                            echo "<div class='$class' data-seat='$seat'>$seat</div>";
+                                            if ($col === 5) echo "<div class='aisle'></div>";
+                                        }
+                                        echo "</div>";
+                                    }
+                                    ?>
                                 </div>
-                                <button type="submit" name="book_flight" class="book-button">Book Now</button>
-                            </form>
-                        <?php else: ?>
-                            <div class="sold-out">Sold Out</div>
-                        <?php endif; ?>
+                                <input type="hidden" name="seat_number" required>
+                            </div>
+
+                            <div class="price-display">
+                                Total Price: $<span class="total-price"><?php echo number_format($flight['price'], 2); ?></span>
+                            </div>
+
+                            <button type="submit" name="book_flight" class="book-button">Book Flight</button>
+                        </form>
                     </div>
                 <?php endwhile; ?>
             <?php else: ?>
-                <p class="no-flights">No flights available at the moment.</p>
+                <p class="no-flights">No flights available at this time.</p>
             <?php endif; ?>
         </div>
     </div>
 
-    <!-- Your existing profile popup code -->
+    <script>
+        // Seat selection
+        document.querySelectorAll('.seat:not(.taken)').forEach(seat => {
+            seat.addEventListener('click', function() {
+                const form = this.closest('form');
+                form.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+                this.classList.add('selected');
+                form.querySelector('input[name="seat_number"]').value = this.dataset.seat;
+            });
+        });
+
+        // Price update
+        function updatePrice(select, basePrice) {
+            const multipliers = {
+                'economy': 1,
+                'business': 1.5,
+                'first': 2
+            };
+            const form = select.closest('form');
+            const priceDisplay = form.querySelector('.total-price');
+            const finalPrice = basePrice * multipliers[select.value];
+            priceDisplay.textContent = finalPrice.toFixed(2);
+        }
+    </script>
 </body>
 </html>
