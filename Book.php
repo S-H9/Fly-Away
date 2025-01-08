@@ -510,7 +510,7 @@ select:focus {
                             </div>
 
                             <div class="seat-selection">
-                                <label>Select Seat:</label>
+                                <label >Select Seat:</label><label class="selected-seat-display"></label>
                                 <div class="seat-map" data-taken="<?php echo htmlspecialchars($flight['taken_seats'] ?? ''); ?>">
                                     <?php 
                                     $taken_seats = explode(',', $flight['taken_seats'] ?? '');
@@ -527,6 +527,8 @@ select:focus {
                                     }
                                     ?>
                                 </div>
+                                
+                                    
                                 <input type="hidden" name="seat_number" required>
                             </div>
 
@@ -545,6 +547,28 @@ select:focus {
     </div>
 
     <script>
+
+document.querySelectorAll('.seat:not(.taken)').forEach(seat => {
+    seat.addEventListener('click', function() {
+        const form = this.closest('form');
+        // Remove selected class from all seats in this form
+        form.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+        // Add selected class to clicked seat
+        this.classList.add('selected');
+        // Update hidden input
+        const seatNumber = this.dataset.seat;
+        form.querySelector('input[name="seat_number"]').value = seatNumber;
+        // Update display
+        form.querySelector('.selected-seat-display').textContent = seatNumber;
+    });
+});
+
+// Make seats that are taken show as disabled
+document.querySelectorAll('.seat.taken').forEach(seat => {
+    seat.title = 'This seat is already taken';
+    seat.style.cursor = 'not-allowed';
+});
+
         // Seat selection
         document.querySelectorAll('.seat:not(.taken)').forEach(seat => {
             seat.addEventListener('click', function() {
@@ -567,6 +591,17 @@ select:focus {
             const finalPrice = basePrice * multipliers[select.value];
             priceDisplay.textContent = finalPrice.toFixed(2);
         }
+
+
+        document.querySelectorAll('.booking-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        const selectedSeat = this.querySelector('input[name="seat_number"]').value;
+        if (!selectedSeat) {
+            e.preventDefault();
+            alert('Please select a seat before booking.');
+        }
+    });
+});
     </script>
 </body>
 </html>
