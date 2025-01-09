@@ -1,59 +1,76 @@
 <?php
 session_start();
 
-// Database connection
-$db_host = "localhost";
-$db_user = "root";        
-$db_pass = "";            
-$db_name = "fly_away";
+// Database connection with improved security
+$db_config = [
+    'host' => 'localhost',
+    'user' => 'root',
+    'pass' => '',
+    'name' => 'fly_away'
+];
 
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+try {
+    $conn = new mysqli($db_config['host'], $db_config['user'], $db_config['pass'], $db_config['name']);
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
+    $conn->set_charset("utf8mb4");
+} catch (Exception $e) {
+    die("Database connection error. Please try again later.");
 }
 
-// Check if user is logged in
+// Session security
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: login.php");
     exit();
 }
 
-// Handle booking submission
-if (isset($_POST['book_flight'])) {
-    $flight_id = $_POST['flight_id'];
-    $user_id = $_SESSION['user_id'];
-    
-    $sql = "INSERT INTO bookings (user_id, flight_id) VALUES (?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $user_id, $flight_id);
-    
-    if ($stmt->execute()) {
-        $success_message = "Flight booked successfully!";
-    } else {
-        $error_message = "Error booking flight. Please try again.";
+$error_message = '';
+$success_message = '';
+
+// Handle flight cancellation
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cancel_booking'])) {
+    $booking_id = filter_var($_POST['booking_id'], FILTER_VALIDATE_INT);
+    if ($booking_id) {
+        try {
+            $cancel_sql = "UPDATE bookings SET status = 'cancelled' 
+                          WHERE booking_id = ? AND user_id = ? AND status = 'confirmed'";
+            $cancel_stmt = $conn->prepare($cancel_sql);
+            $cancel_stmt->bind_param("ii", $booking_id, $_SESSION['user_id']);
+            
+            if ($cancel_stmt->execute()) {
+                $success_message = "Booking cancelled successfully.";
+            } else {
+                throw new Exception("Unable to cancel booking.");
+            }
+        } catch (Exception $e) {
+            $error_message = $e->getMessage();
+        }
     }
 }
 
-// Fetch user's booked flights
-$sql = "SELECT f.*, b.booking_id, b.status, b.booking_date 
-        FROM flights f 
-        INNER JOIN bookings b ON f.flight_id = b.flight_id 
-        WHERE b.user_id = ? 
-        ORDER BY b.booking_date DESC";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$result = $stmt->get_result();
+// Fetch user's bookings with complete flight information
+$bookings_sql = "SELECT f.*, b.booking_id, b.status, b.booking_date, b.class, b.seat_number, b.price as booking_price 
+                 FROM flights f 
+                 INNER JOIN bookings b ON f.flight_id = b.flight_id 
+                 WHERE b.user_id = ? 
+                 ORDER BY b.booking_date DESC";
+try {
+    $bookings_stmt = $conn->prepare($bookings_sql);
+    $bookings_stmt->bind_param("i", $_SESSION['user_id']);
+    $bookings_stmt->execute();
+    $bookings_result = $bookings_stmt->get_result();
+} catch (Exception $e) {
+    $error_message = "Error fetching bookings.";
+}
 
-// Fetch available flights
-$available_sql = "SELECT * FROM flights 
-                 WHERE flight_id NOT IN (
-                     SELECT flight_id FROM bookings WHERE user_id = ?
-                 )";
-$available_stmt = $conn->prepare($available_sql);
-$available_stmt->bind_param("i", $_SESSION['user_id']);
-$available_stmt->execute();
-$available_flights = $available_stmt->get_result();
+// Fetch user profile image
+$profile_sql = "SELECT profile_image FROM users WHERE user_id = ?";
+$profile_stmt = $conn->prepare($profile_sql);
+$profile_stmt->bind_param("i", $_SESSION['user_id']);
+$profile_stmt->execute();
+$profile_result = $profile_stmt->get_result();
+$profile_image = $profile_result->fetch_assoc()['profile_image'] ?? 'images/default-profile.jpg';
 ?>
 
 <!DOCTYPE html>
@@ -61,8 +78,8 @@ $available_flights = $available_stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fly Away - Flights</title>
-    <link rel="stylesheet" href="Profile2.css">
+    <title>Fly Away - My Flights</title>
+    <link rel="stylesheet" href="css/flights.css">
     <style>
         /* Your existing styles remain the same */
        /* Add this CSS in the style section */
@@ -333,118 +350,103 @@ body {
 <body>
     <nav class="navbar">
         <div class="logo">
-            <img src="imges/img.png" alt="Fly Away Logo">
+            <img src="images/logo.png" alt="Fly Away Logo">
         </div>
         <div class="nav-links">
-            <a href="HomePage.php">Home</a>
-            <a href="Book.php">Book</a>
-            <a href="#" class="active">Flights</a>
-            <div class="profile-button" onclick="toggleProfile()">
-                <?php 
-                $profile_sql = "SELECT profile_image FROM users WHERE id = ?";
-                $profile_stmt = $conn->prepare($profile_sql);
-                $profile_stmt->bind_param("i", $_SESSION['user_id']);
-                $profile_stmt->execute();
-                $profile_result = $profile_stmt->get_result();
-                $profile_image = $profile_result->fetch_assoc()['profile_image'] ?? 'imges/img2.jpg';
-                ?>
+            <a href="homepage.php">Home</a>
+            <a href="book.php">Book</a>
+            <a href="#" class="active">My Flights</a>
+            <div class="profile-button">
                 <img src="<?php echo htmlspecialchars($profile_image); ?>" alt="Profile" class="profile-img">
             </div>
         </div>
     </nav>
 
     <div class="flights-container">
-        <?php if (isset($success_message)): ?>
-            <div class="success-message"><?php echo $success_message; ?></div>
+        <?php if ($error_message): ?>
+            <div class="message error"><?php echo htmlspecialchars($error_message); ?></div>
         <?php endif; ?>
         
-        <?php if (isset($error_message)): ?>
-            <div class="error-message"><?php echo $error_message; ?></div>
+        <?php if ($success_message): ?>
+            <div class="message success"><?php echo htmlspecialchars($success_message); ?></div>
         <?php endif; ?>
 
-        <!-- My Bookings Section -->
         <div class="flights-section">
             <h2 class="section-title">My Bookings</h2>
-            <?php if ($result->num_rows > 0): ?>
-                <?php while ($booking = $result->fetch_assoc()): ?>
+            <?php if ($bookings_result && $bookings_result->num_rows > 0): ?>
+                <?php while ($booking = $bookings_result->fetch_assoc()): ?>
                     <div class="flight-card">
                         <div class="flight-info">
                             <div class="flight-route">
                                 <div class="flight-time"><?php echo date('H:i', strtotime($booking['departure_time'])); ?></div>
                                 <div class="flight-city"><?php echo htmlspecialchars($booking['departure_city']); ?></div>
                             </div>
-                            <div class="flight-duration">
-                                <?php 
-                                $dept = strtotime($booking['departure_time']);
-                                $arr = strtotime($booking['arrival_time']);
-                                $duration = round(abs($arr - $dept) / 3600, 1);
-                                echo $duration . 'h';
-                                ?>
+                            <div class="flight-details">
+                                <div class="flight-duration">
+                                    <?php 
+                                    $dept = new DateTime($booking['departure_time']);
+                                    $arr = new DateTime($booking['arrival_time']);
+                                    $duration = $dept->diff($arr);
+                                    echo $duration->format('%hh %im');
+                                    ?>
+                                </div>
+                                <div class="flight-date">
+                                    <?php echo date('d M Y', strtotime($booking['departure_time'])); ?>
+                                </div>
+                                <div class="booking-info">
+                                    Class: <?php echo ucfirst(htmlspecialchars($booking['class'])); ?> |
+                                    Seat: <?php echo htmlspecialchars($booking['seat_number']); ?>
+                                </div>
                             </div>
                             <div class="flight-route">
                                 <div class="flight-time"><?php echo date('H:i', strtotime($booking['arrival_time'])); ?></div>
                                 <div class="flight-city"><?php echo htmlspecialchars($booking['arrival_city']); ?></div>
                             </div>
                         </div>
-                        <div class="flight-price">$<?php echo number_format($booking['price'], 2); ?></div>
-                        <div class="booking-status status-<?php echo $booking['status']; ?>">
-                            <?php echo ucfirst($booking['status']); ?>
+                        <div class="flight-price">$<?php echo number_format($booking['booking_price'], 2); ?></div>
+                        <div class="booking-actions">
+                            <div class="booking-status status-<?php echo strtolower($booking['status']); ?>">
+                                <?php echo ucfirst(htmlspecialchars($booking['status'])); ?>
+                            </div>
+                            <?php if ($booking['status'] === 'confirmed' && strtotime($booking['departure_time']) > time()): ?>
+                                <form method="POST" class="cancel-form" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                    <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
+                                    <button type="submit" name="cancel_booking" class="cancel-button">Cancel</button>
+                                </form>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endwhile; ?>
             <?php else: ?>
-                <p style="color: white; text-align: center;">No bookings found.</p>
-            <?php endif; ?>
-        </div>
-
-        <!-- Available Flights Section -->
-        <div class="flights-section">
-            <h2 class="section-title">Available Flights</h2>
-            <?php if ($available_flights->num_rows > 0): ?>
-                <?php while ($flight = $available_flights->fetch_assoc()): ?>
-                    <div class="flight-card">
-                        <div class="flight-info">
-                            <div class="flight-route">
-                                <div class="flight-time"><?php echo date('H:i', strtotime($flight['departure_time'])); ?></div>
-                                <div class="flight-city"><?php echo htmlspecialchars($flight['departure_city']); ?></div>
-                            </div>
-                            <div class="flight-duration">
-                                <?php 
-                                $dept = strtotime($flight['departure_time']);
-                                $arr = strtotime($flight['arrival_time']);
-                                $duration = round(abs($arr - $dept) / 3600, 1);
-                                echo $duration . 'h';
-                                ?>
-                            </div>
-                            <div class="flight-route">
-                                <div class="flight-time"><?php echo date('H:i', strtotime($flight['arrival_time'])); ?></div>
-                                <div class="flight-city"><?php echo htmlspecialchars($flight['arrival_city']); ?></div>
-                            </div>
-                        </div>
-                        <div class="flight-price">$<?php echo number_format($flight['price'], 2); ?></div>
-                        <form method="POST" style="display: inline;">
-                            <input type="hidden" name="flight_id" value="<?php echo $flight['flight_id']; ?>">
-                            <button type="submit" name="book_flight" class="book-button">Book Now</button>
-                        </form>
-                    </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <p style="color: white; text-align: center;">No available flights found.</p>
+                <div class="no-results">
+                    <p>No bookings found. Ready to plan your next trip?</p>
+                    <a href="book.php" class="book-now-button">Book a Flight</a>
+                </div>
             <?php endif; ?>
         </div>
     </div>
 
-    <!-- Profile Popup (Your existing code) -->
-
     <script>
-        function toggleProfile() {
-            const popup = document.getElementById('profilePopup');
-            popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle profile button click
+        const profileButton = document.querySelector('.profile-button');
+        if (profileButton) {
+            profileButton.addEventListener('click', function() {
+                window.location.href = 'profile.php';
+            });
         }
 
-        function signOut() {
-            window.location.href = 'logout.php';
-        }
+        // Add animation to status messages
+        const messages = document.querySelectorAll('.message');
+        messages.forEach(message => {
+            setTimeout(() => {
+                message.style.opacity = '0';
+                setTimeout(() => {
+                    message.style.display = 'none';
+                }, 300);
+            }, 5000);
+        });
+    });
     </script>
 </body>
 </html>

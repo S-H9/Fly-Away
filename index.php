@@ -1,10 +1,8 @@
-<!--This is login.html file ,, named "index.php"-->
-
 <?php
 session_start();
 
-// // Check if user is already logged in
-// if(isset($_SESSION['user_id'])) {
+// Check if user is already logged in
+// if (isset($_SESSION['user_id'])) {
 //     header("Location: HomePage.php");
 //     exit();
 // }
@@ -26,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $conn->real_escape_string($_POST['username']);
     $password = $_POST['password'];
     
-    $sql = "SELECT id, username, password FROM users WHERE username = ?";
+    $sql = "SELECT user_id, username, password FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -36,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
             // Password is correct, start a new session
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_id'] = $user['user_id'];  // Make sure column name is correct (user_id instead of id)
             $_SESSION['username'] = $user['username'];
             
             header("Location: HomePage.php");
@@ -60,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <div class="login-container">
-        <img src="imges/img.png" alt="Fly Away Logo">
+        <img src="images/img.png" alt="Fly Away Logo"> <!-- Fixed images folder path -->
         <h1>Login</h1>
         <?php if (isset($error)) { ?>
             <p style="color: #ff6b6b;"><?php echo $error; ?></p>
