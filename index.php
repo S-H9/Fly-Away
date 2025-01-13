@@ -58,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <div class="login-container">
-        <img src="images/img.png" alt="Fly Away Logo"> <!-- Fixed images folder path -->
+        <img src="imges/img.png" alt="Fly Away Logo"> <!-- Fixed images folder path -->
         <h1>Login</h1>
         <?php if (isset($error)) { ?>
             <p style="color: #ff6b6b;"><?php echo $error; ?></p>
