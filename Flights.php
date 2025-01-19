@@ -87,6 +87,11 @@ $profile_image = $profile_result->fetch_assoc()['profile_image'] ?? 'images/defa
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fly Away - My Flights</title>
     <link rel="stylesheet" href="css/flights.css">
+  
+   <!-- Shortcut Icon -->
+    <link rel="icon" href="imges/img.png" type="image/x-icon">
+  
+
     <style>
         /* Your existing styles remain the same */
        /* Add this CSS in the style section */
@@ -352,6 +357,82 @@ body {
         width: 100%;
     }
 }
+      
+      
+      /* Footer Styles */
+.footer {
+    background: #0b587c;
+    color: #fff;
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 2rem;
+}
+
+.footer-section {
+    flex: 1 1 calc(25% - 1rem);
+    min-width: 250px;
+}
+
+.footer-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #48a7d4;
+}
+
+.footer-section p,
+.footer-section ul {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin: 0.5rem 0;
+}
+
+.footer-section ul li a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-section ul li a:hover {
+    color: #48a7d4;
+}
+
+.footer-bottom {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-section {
+        text-align: center;
+    }
+}
+
+      
+      
+
     </style>
 </head>
 <body>
@@ -455,5 +536,33 @@ body {
         });
     });
     </script>
+  
+     <footer class="footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>About Us</h3>
+            <p>Fly Away is dedicated to providing seamless and enjoyable flight booking experiences. Your journey starts here!</p>
+        </div>
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="homepage.php">Home</a></li>
+                <li><a href="book.php">Book a Flight</a></li>
+                <li><a href="flights.php">Available Flights</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>Contact Us</h3>
+            <p>Email: support@flyaway.com</p>
+            <p>Phone: +966 534 567 890</p>
+            <p>Address: JUC UQU, CS</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Fly Away-JUC. All Rights Reserved.</p>
+    </div>
+</footer>
+  
+
 </body>
 </html>
