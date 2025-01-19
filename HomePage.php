@@ -144,9 +144,9 @@ $carouselImages = [
     <meta name="description" content="Fly-Away - Your premier destination for booking flights and planning your next adventure">
     <meta name="theme-color" content="#0b587c">
     <title>Fly-Away - Your Journey Begins Here</title>
-
-    <!-- Shortcut Icon -->
+   <!-- Shortcut Icon -->
     <link rel="icon" href="imges/img.png" type="image/x-icon">
+  
 
     
     <!-- Preload critical assets -->
@@ -656,8 +656,9 @@ body {
     transform: scale(1.1);
     box-shadow: 0 0 10px rgba(11, 88, 124, 0.3);
 }
-
-/* Footer Styles */
+      
+      
+      /* Footer Styles */
 .footer {
     background: #0b587c;
     color: #fff;
@@ -904,7 +905,8 @@ body {
             }
         });
     </script>
-
+  
+  
 <footer class="footer">
     <div class="footer-container">
         <div class="footer-section">
@@ -930,5 +932,7 @@ body {
         <p>&copy; 2025 Fly Away-JUC. All Rights Reserved.</p>
     </div>
 </footer>
+  
+
 </body>
 </html>

@@ -134,9 +134,10 @@ $profile_image = $profile_result->fetch_assoc()['profile_image'] ?? 'images/defa
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fly Away - Book Your Flight</title>
     <link rel="stylesheet" href="css/book.css">
-
-    <!-- Shortcut Icon -->
+  
+  <!-- Shortcut Icon -->
     <link rel="icon" href="imges/img.png" type="image/x-icon">
+  
 
     <style>
 
@@ -479,8 +480,8 @@ height: 25px;
 font-size: 0.6rem;
 }
 }
-
-/* Footer Styles */
+      
+      /* Footer Styles */
 .footer {
     background: #0b587c;
     color: #fff;
@@ -550,6 +551,7 @@ font-size: 0.6rem;
         text-align: center;
     }
 }
+
 
 </style>
 </head>
@@ -681,8 +683,9 @@ font-size: 0.6rem;
         priceDisplay.textContent = finalPrice.toFixed(2);
     }
     </script>
-
-<footer class="footer">
+  
+  
+  <footer class="footer">
     <div class="footer-container">
         <div class="footer-section">
             <h3>About Us</h3>
@@ -707,5 +710,6 @@ font-size: 0.6rem;
         <p>&copy; 2025 Fly Away-JUC. All Rights Reserved.</p>
     </div>
 </footer>
+
 </body>
 </html>

@@ -87,9 +87,10 @@ $profile_image = $profile_result->fetch_assoc()['profile_image'] ?? 'images/defa
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fly Away - My Flights</title>
     <link rel="stylesheet" href="css/flights.css">
-
-    <!-- Shortcut Icon -->
+  
+   <!-- Shortcut Icon -->
     <link rel="icon" href="imges/img.png" type="image/x-icon">
+  
 
     <style>
         /* Your existing styles remain the same */
@@ -356,8 +357,9 @@ body {
         width: 100%;
     }
 }
-
-/* Footer Styles */
+      
+      
+      /* Footer Styles */
 .footer {
     background: #0b587c;
     color: #fff;
@@ -427,6 +429,9 @@ body {
         text-align: center;
     }
 }
+
+      
+      
 
     </style>
 </head>
@@ -531,7 +536,8 @@ body {
         });
     });
     </script>
-    <footer class="footer">
+  
+     <footer class="footer">
     <div class="footer-container">
         <div class="footer-section">
             <h3>About Us</h3>
@@ -556,5 +562,7 @@ body {
         <p>&copy; 2025 Fly Away-JUC. All Rights Reserved.</p>
     </div>
 </footer>
+  
+
 </body>
 </html>
