@@ -1,6 +1,15 @@
 <?php
 session_start();
 
+
+// Check if user is admin
+if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] == 'admin') {
+    header('Location: adminBook.php');
+    exit();
+}
+
+
+// echo $_SESSION['user_type'];
 // Database connection
 $db_config = [
     'host' => 'localhost',
@@ -86,9 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['book_flight'])) {
                 
                 if ($insert_stmt->execute()) {
                     $conn->commit();
-                    $_SESSION['booking_success'] = "Flight booked successfully! Your seat {$seat_number} has been reserved.";
-                    header("Location: Flights.php");
-                    exit();
+                    $success_message = "Flight booked successfully! Your seat {$seat_number} has been reserved.";
                 } else {
                     throw new Exception("Error booking flight. Please try again.");
                 }
@@ -127,6 +134,10 @@ $profile_image = $profile_result->fetch_assoc()['profile_image'] ?? 'images/defa
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fly Away - Book Your Flight</title>
     <link rel="stylesheet" href="css/book.css">
+
+    <!-- Shortcut Icon -->
+    <link rel="icon" href="imges/img.png" type="image/x-icon">
+
     <style>
 
 /* Base Styles */
@@ -469,6 +480,78 @@ font-size: 0.6rem;
 }
 }
 
+
+/* Footer Styles */
+.footer {
+    background: #0b587c;
+    color: #fff;
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 2rem;
+}
+
+.footer-section {
+    flex: 1 1 calc(25% - 1rem);
+    min-width: 250px;
+}
+
+.footer-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #48a7d4;
+}
+
+.footer-section p,
+.footer-section ul {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin: 0.5rem 0;
+}
+
+.footer-section ul li a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-section ul li a:hover {
+    color: #48a7d4;
+}
+
+.footer-bottom {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-section {
+        text-align: center;
+    }
+}
+
 </style>
 </head>
 <body>
@@ -479,7 +562,7 @@ font-size: 0.6rem;
         <div class="nav-links">
             <a href="homepage.php">Home</a>
             <a href="#" class="active">Book</a>
-            <a href="Flights.php">My Flights</a>
+            <a href="Flights.php">Flights</a>
             <div class="profile-button">
                 <img src="<?php echo htmlspecialchars($profile_image); ?>" alt="Profile" class="profile-img">
             </div>
@@ -513,8 +596,8 @@ font-size: 0.6rem;
                             </div>
                         </div>
                             
-                        <form method="POST" class="booking-form" id="bookingForm-<?php echo $flight['flight_id']; ?>" onsubmit="return handleBookingSubmit(this, event);">
-                        <input type="hidden" name="flight_id" value="<?php echo $flight['flight_id']; ?>">
+                        <form method="POST" class="booking-form" onsubmit="return validateBooking(this);">
+                            <input type="hidden" name="flight_id" value="<?php echo $flight['flight_id']; ?>">
                             
                             <div class="form-group">
                                 <label for="class-select-<?php echo $flight['flight_id']; ?>">Select Class:</label>
@@ -556,7 +639,7 @@ font-size: 0.6rem;
                                 Total Price: $<span class="total-price"><?php echo number_format($flight['price'], 2); ?></span>
                             </div>
 
-                            <button type="submit" name="book_flight" class="book-button">Book Flight</a></button>
+                            <button type="submit" name="book_flight" class="book-button">Book Flight</button>
                         </form>
                     </div>
                 <?php endwhile; ?>
@@ -566,56 +649,64 @@ font-size: 0.6rem;
         </div>
     </div>
 
-        <script>
-            function validateBooking(form) {
-                const selectedSeat = form.querySelector('input[name="seat_number"]').value;
-                if (!selectedSeat) {
-                    alert('Please select a seat before booking.');
-                    return false;
-                }
-                return true;
-            }
+    <script>
+    function validateBooking(form) {
+        const selectedSeat = form.querySelector('input[name="seat_number"]').value;
+        if (!selectedSeat) {
+            alert('Please select a seat before booking.');
+            return false;
+        }
+        return true;
+    }
 
-            function handleBookingSubmit(form, event) {
-                if (!validateBooking(form)) {
-                    return false;
-                }
-                
-                // Form is valid, let it submit normally
-                return true;
-            }
+    document.querySelectorAll('.seat:not(.taken)').forEach(seat => {
+        seat.addEventListener('click', function() {
+            const form = this.closest('form');
+            form.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+            this.classList.add('selected');
+            const seatNumber = this.dataset.seat;
+            form.querySelector('input[name="seat_number"]').value = seatNumber;
+            form.querySelector('.selected-seat-display').textContent = ` - Selected: ${seatNumber}`;
+        });
+    });
 
-            document.querySelectorAll('.seat:not(.taken)').forEach(seat => {
-                seat.addEventListener('click', function() {
-                    const form = this.closest('form');
-                    form.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
-                    this.classList.add('selected');
-                    const seatNumber = this.dataset.seat;
-                    form.querySelector('input[name="seat_number"]').value = seatNumber;
-                    form.querySelector('.selected-seat-display').textContent = ` - Selected: ${seatNumber}`;
-                });
-            });
+    function updatePrice(select, basePrice) {
+        const multipliers = {
+            'economy': 1,
+            'business': 1.5,
+            'first': 2
+        };
+        const form = select.closest('form');
+        const priceDisplay = form.querySelector('.total-price');
+        const finalPrice = basePrice * multipliers[select.value];
+        priceDisplay.textContent = finalPrice.toFixed(2);
+    }
+    </script>
 
-            function updatePrice(select, basePrice) {
-                const multipliers = {
-                    'economy': 1,
-                    'business': 1.5,
-                    'first': 2
-                };
-                const form = select.closest('form');
-                const priceDisplay = form.querySelector('.total-price');
-                const finalPrice = basePrice * multipliers[select.value];
-                priceDisplay.textContent = finalPrice.toFixed(2);
-            }
-        </script>
-
-        <?php if (isset($_SESSION['booking_success'])): ?>
-        <div class="message success">
-            <?php 
-                echo htmlspecialchars($_SESSION['booking_success']);
-                unset($_SESSION['booking_success']); 
-            ?>
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h3>About Us</h3>
+            <p>Fly Away is dedicated to providing seamless and enjoyable flight booking experiences. Your journey starts here!</p>
         </div>
-    <?php endif; ?>
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="homepage.php">Home</a></li>
+                <li><a href="book.php">Book a Flight</a></li>
+                <li><a href="flights.php">Available Flights</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>Contact Us</h3>
+            <p>Email: support@flyaway.com</p>
+            <p>Phone: +966 534 567 890</p>
+            <p>Address: JUC UQU, CS</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Fly Away-JUC. All Rights Reserved.</p>
+    </div>
+</footer>
 </body>
 </html>
