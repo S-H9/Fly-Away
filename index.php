@@ -1,16 +1,12 @@
+
+
 <?php
 session_start();
 
-// Check if user is already logged in
-// if (isset($_SESSION['user_id'])) {
-//     header("Location: HomePage.php");
-//     exit();
-// }
-
 // Database connection
 $db_host = "localhost";
-$db_user = "root";         // default XAMPP username
-$db_pass = "";            // default XAMPP password is empty
+$db_user = "root";
+$db_pass = "";
 $db_name = "fly_away";
 
 $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
@@ -24,7 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $conn->real_escape_string($_POST['username']);
     $password = $_POST['password'];
     
-    $sql = "SELECT user_id, username, password FROM users WHERE username = ?";
+    // Update SQL to fetch user_type as well
+    $sql = "SELECT user_id, username, password, user_type FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -33,9 +30,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows === 1) {
         $user = $result->fetch_assoc();
         if (password_verify($password, $user['password'])) {
-            // Password is correct, start a new session
-            $_SESSION['user_id'] = $user['user_id'];  // Make sure column name is correct (user_id instead of id)
+            // Set both user_id and user_type in session
+            $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['user_type'] = $user['user_type']; // Add this line
             
             header("Location: HomePage.php");
             exit();

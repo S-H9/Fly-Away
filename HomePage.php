@@ -9,6 +9,23 @@ header("X-XSS-Protection: 1; mode=block");
 header("Referrer-Policy: strict-origin-when-cross-origin");
 header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
 
+// Database connection
+$db_config = [
+    'host' => 'localhost',
+    'user' => 'root',
+    'pass' => '',
+    'name' => 'fly_away'
+];
+
+try {
+    $conn = new mysqli($db_config['host'], $db_config['user'], $db_config['pass'], $db_config['name']);
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
+    $conn->set_charset("utf8mb4");
+} catch (Exception $e) {
+    die("Database connection error. Please try again later.");
+}
 // Enhanced session security function
 function checkSession() {
     // Set secure session cookie parameters
@@ -614,6 +631,28 @@ body {
     }
 }
 
+
+.profile-pic {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #0b587c;
+    transition: transform 0.3s ease;
+    mar
+}
+
+.profile-pic img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-pic:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(11, 88, 124, 0.3);
+}
+
     </style>
 
 </head>
@@ -623,16 +662,28 @@ body {
             <a href="/" class="logo">
                 <img src="imges/img.png" alt="Fly Away Logo" width="60" height="60">
             </a>
-            <div class="nav-links">
+            <div class="nav-links"  style="display: flex; align-items: center; position:absolute; left:1100px; top:20px;">
                 <a href="#" class="active">Home</a>
                 <a href="Book.php">Book</a>
                 <a href="Flights.php">Flights</a>
-                <div class="profile-button" onclick="toggleProfile()">
-                    <?php
-                    $profile_image = isset($_SESSION['profile_image']) ? $_SESSION['profile_image'] : 'imges/img2.jpg';
-                    echo '<img src="' . e($profile_image) . '" alt="Profile" class="profile-img" width="40" height="40">';
-                    ?>
-                </div>
+                
+            </div>
+            <div class="profile-pic" >
+                <?php
+                    $user_id = $_SESSION['user_id'];
+                    $profile_sql = "SELECT profile_image FROM users WHERE user_id = ?";
+                    $stmt = $conn->prepare($profile_sql);
+                    if ($stmt) {
+                        $stmt->bind_param("i", $user_id);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $user = $result->fetch_assoc();
+                        
+                        // Remove the duplicate 'uploads/' prefix since it's already in the database path
+                        $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'imges/img4.jpeg';
+                        echo '<img src="' . htmlspecialchars($profile_image) . '" alt="Profile Picture">';
+                    }
+                ?>
             </div>
         </div>
     </nav>

@@ -1,6 +1,13 @@
 <?php
 session_start();
 
+// Check if user is admin
+if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] == 'admin') {
+    header('Location: userFlights.php');
+    exit();
+}
+
+
 // Database connection with improved security
 $db_config = [
     'host' => 'localhost',

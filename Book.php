@@ -1,6 +1,15 @@
 <?php
 session_start();
 
+
+// Check if user is admin
+if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] == 'admin') {
+    header('Location: adminBook.php');
+    exit();
+}
+
+
+// echo $_SESSION['user_type'];
 // Database connection
 $db_config = [
     'host' => 'localhost',
