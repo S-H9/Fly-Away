@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($check_result->num_rows > 0) {
             $error = "Username or email already exists";
         } else {
-            $profile_image = "imges/img2.jpg"; // Default image
+            $profile_image = "imges/default-profile.jpg"; // Default image
 
             // Handle profile image upload
             if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {

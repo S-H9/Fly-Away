@@ -480,7 +480,6 @@ font-size: 0.6rem;
 }
 }
 
-
 /* Footer Styles */
 .footer {
     background: #0b587c;

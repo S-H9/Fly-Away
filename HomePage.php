@@ -143,10 +143,11 @@ $carouselImages = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Fly-Away - Your premier destination for booking flights and planning your next adventure">
     <meta name="theme-color" content="#0b587c">
-    <title>Fly Away - Your Journey Begins Here</title>
+    <title>Fly-Away - Your Journey Begins Here</title>
 
     <!-- Shortcut Icon -->
     <link rel="icon" href="imges/img.png" type="image/x-icon">
+
     
     <!-- Preload critical assets -->
     <link rel="preload" href="imges/img.png" as="image">
@@ -726,6 +727,7 @@ body {
         text-align: center;
     }
 }
+
 
     </style>
 
