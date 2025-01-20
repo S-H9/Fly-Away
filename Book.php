@@ -144,6 +144,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['book_flight'])) {
                 if ($insert_stmt->execute()) {
                     $conn->commit();
                     $success_message = "Flight booked successfully! Your seat {$seat_number} has been reserved.";
+                    // After successful booking, redirect to Flights.php
+                    if ($success_message) {
+                        echo "<script>window.location.href = 'Flights.php';</script>";
+                        exit();
+                    }
                 } else {
                     throw new Exception("Error booking flight. Please try again.");
                 }
@@ -805,37 +810,99 @@ font-size: 0.6rem;
     </div>
 
     <script>
-    function validateBooking(form) {
-        const selectedSeat = form.querySelector('input[name="seat_number"]').value;
-        if (!selectedSeat) {
-            alert('Please select a seat before booking.');
-            return false;
-        }
-        return true;
+
+function validateBooking(form) {
+    const selectedSeat = form.querySelector('input[name="seat_number"]').value;
+    if (!selectedSeat) {
+        alert('Please select a seat before booking.');
+        return false;
     }
 
-    document.querySelectorAll('.seat:not(.taken)').forEach(seat => {
+    const flightDetails = {
+        departureCity: form.closest('div').querySelector('.flight-cities').firstElementChild.textContent,
+        arrivalCity: form.closest('div').querySelector('.flight-cities').lastElementChild.textContent,
+        departureTime: form.closest('div').querySelector('.flight-time').firstElementChild.textContent,
+        class: form.querySelector('select[name="class"]').value,
+        seatNumber: selectedSeat,
+        flightId: form.querySelector('input[name="flight_id"]').value,
+        price: form.querySelector('.total-price').textContent
+    };
+    
+    // Store flight details in session storage
+    sessionStorage.setItem('flightDetails', JSON.stringify(flightDetails));
+    
+    // Redirect to payment page
+    window.location.href = 'paymentPage.php';
+    return false;
+}
+
+// Add this styling to make seats clearly selectable
+document.querySelectorAll('.seat').forEach(seat => {
+    if (!seat.classList.contains('taken')) {
+        seat.style.cursor = 'pointer';
         seat.addEventListener('click', function() {
+            // Remove selected class from all seats in this form
             const form = this.closest('form');
             form.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+            
+            // Add selected class to clicked seat
             this.classList.add('selected');
+            
+            // Update the hidden input
             const seatNumber = this.dataset.seat;
             form.querySelector('input[name="seat_number"]').value = seatNumber;
             form.querySelector('.selected-seat-display').textContent = ` - Selected: ${seatNumber}`;
         });
-    });
-
-    function updatePrice(select, basePrice) {
-        const multipliers = {
-            'economy': 1,
-            'business': 1.5,
-            'first': 2
-        };
-        const form = select.closest('form');
-        const priceDisplay = form.querySelector('.total-price');
-        const finalPrice = basePrice * multipliers[select.value];
-        priceDisplay.textContent = finalPrice.toFixed(2);
     }
+});
+
+function updatePrice(select, basePrice) {
+    const multipliers = {
+        'economy': 1,
+        'business': 1.5,
+        'first': 2
+    };
+    const form = select.closest('form');
+    const priceDisplay = form.querySelector('.total-price');
+    const finalPrice = basePrice * multipliers[select.value];
+    priceDisplay.textContent = finalPrice.toFixed(2);
+}
+
+
+
+// Update the form submission handling
+document.querySelectorAll('.booking-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const flightDetails = {
+            departureCity: this.closest('.flight-card').querySelector('.flight-cities').firstElementChild.textContent,
+            arrivalCity: this.closest('.flight-card').querySelector('.flight-cities').lastElementChild.textContent,
+            departureTime: this.closest('.flight-card').querySelector('.flight-time').firstElementChild.textContent,
+            class: this.querySelector('select[name="class"]').value,
+            seatNumber: this.querySelector('input[name="seat_number"]').value,
+            flightId: this.querySelector('input[name="flight_id"]').value
+        };
+        
+        const totalPrice = this.querySelector('.total-price').textContent;
+        
+        if (!flightDetails.seatNumber) {
+            alert('Please select a seat before booking.');
+            return;
+        }
+        
+        openPaymentWindow(flightDetails, totalPrice);
+    });
+});
+
+// Function to submit the form after payment
+function submitBookingForm(flightId) {
+    const form = document.querySelector(`.booking-form input[value="${flightId}"]`).closest('form');
+    form.submit();
+    setTimeout(() => {
+        window.location.href = 'Flights.php';
+    }, 1000);
+}
     </script>
   
   
