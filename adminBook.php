@@ -158,7 +158,7 @@ $flights_result = $conn->query($flights_sql);
 
     .nav-links {
         display: flex;
-        gap: 2rem;
+        gap: 1rem;
         align-items: center;
     }
 
@@ -360,7 +360,7 @@ $flights_result = $conn->query($flights_sql);
     overflow: hidden;
     border: 2px solid #0b587c;
     transition: transform 0.3s ease;
-    mar
+    
 }
 
 .profile-pic img {
@@ -388,7 +388,7 @@ $flights_result = $conn->query($flights_sql);
                 <a href="userFlights.php">Flights</a>
                 
             </div>
-            <div class="profile-pic" >
+            <div class="profile-pic"  style= "margin-left : -5px">
                 <?php
                     $user_id = $_SESSION['user_id'];
                     $profile_sql = "SELECT profile_image FROM users WHERE user_id = ?";
@@ -399,7 +399,6 @@ $flights_result = $conn->query($flights_sql);
                         $result = $stmt->get_result();
                         $user = $result->fetch_assoc();
                         
-                        // Remove the duplicate 'uploads/' prefix since it's already in the database path
                         $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'imges/img4.jpeg';
                         echo '<img src="' . htmlspecialchars($profile_image) . '" alt="Profile Picture">';
                     }

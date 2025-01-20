@@ -195,11 +195,13 @@ body {
     padding: 1rem 2rem;
     position: fixed;
     width: 100%;
+    height: 10%;
     top: 0;
     z-index: 1000;
     box-shadow: var(--shadow-md);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    
 }
 
 .navbar-content {
@@ -222,6 +224,8 @@ body {
     overflow: hidden;
     box-shadow: var(--shadow-sm);
     transition: transform var(--transition-speed) ease;
+    
+    
 }
 
 .logo:hover {
@@ -232,13 +236,15 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  
 }
 
 /* Navigation Links */
 .nav-links {
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
     align-items: center;
+   
 }
 
 .nav-links a {
@@ -377,24 +383,158 @@ body {
 
 /* Quick Search Bar */
 .quick-bar {
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.98);
     margin: -4rem auto 2rem;
-    padding: 2rem;
-    border-radius: var(--border-radius);
-    width: 90%;
+    padding: 2.5rem;
+    border-radius: 20px;
+    width: 85%;
     max-width: var(--container-width);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     position: relative;
     z-index: 3;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .search-form {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
-    align-items: end;
+    margin-bottom: 1.5rem;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group i {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    pointer-events: none;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.search-form input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3.2rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: white;
+    color: #333;
+}
+
+.search-form input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(11, 88, 124, 0.1);
+    outline: none;
+}
+
+.search-form input:focus + i {
+    color: var(--secondary-color);
+}
+
+.search-form button {
+    grid-column: 1 / -1;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.search-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(11, 88, 124, 0.2);
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+}
+
+.search-form button i {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.search-form button:hover i {
+    transform: translateX(4px);
+}
+
+/* Error message styling */
+.message.error {
+    background-color: #fee2e2;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+    border-left: 4px solid #dc2626;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .search-form {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .quick-bar {
+        width: 92%;
+        padding: 1.5rem;
+        margin-top: -2rem;
+    }
+    
+    .search-form {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .search-form button {
+        padding: 1rem;
+    }
+}
+
+/* Date input styling */
+.search-form input[type="date"] {
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.search-form input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.search-form input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
 }
 
 .input-group {
@@ -736,16 +876,14 @@ body {
 <body>
     <nav class="navbar">
         <div class="navbar-content">
-            <a href="/" class="logo">
-                <img src="imges/img.png" alt="Fly Away Logo" width="60" height="60">
+            <a href="/" class="logo" style="position: absolute; left: 33px; top: 16px">
+                <img src="imges/img.png" alt="Fly Away Logo" width="60" height="60" >
             </a>
-            <div class="nav-links"  style="display: flex; align-items: center; position:absolute; left:1100px; top:20px;">
+            <div class="nav-links"  style="display: flex; align-items: center; position:absolute; left:1400px; top:20px;">
                 <a href="#" class="active">Home</a>
                 <a href="Book.php">Book</a>
-                <a href="Flights.php">Flights</a>
-                
-            </div>
-            <div class="profile-pic" >
+                <a href="Flights.php">My Flights</a>
+                <div class="profile-pic" >
                 <?php
                     $user_id = $_SESSION['user_id'];
                     $profile_sql = "SELECT profile_image FROM users WHERE user_id = ?";
@@ -762,6 +900,9 @@ body {
                     }
                 ?>
             </div>
+                
+            </div>
+            
         </div>
     </nav>
 
@@ -787,36 +928,32 @@ body {
         </section>
 
         <section class="quick-bar">
-            <form class="search-form" action="search-flights.php" method="POST">
-                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
-                <div class="input-group">
-                    <i class="fas fa-plane-departure"></i>
-                    <input type="text" name="departure" placeholder="From" required 
-                           pattern="[A-Za-z\s]+" title="Please enter a valid city name">
-                </div>
-                <div class="input-group">
-                    <i class="fas fa-plane-arrival"></i>
-                    <input type="text" name="arrival" placeholder="To" required 
-                           pattern="[A-Za-z\s]+" title="Please enter a valid city name">
-                </div>
-                <div class="input-group">
-                    <i class="fas fa-calendar"></i>
-                    <input type="date" name="date" required 
-                           min="<?= date('Y-m-d') ?>" 
-                           max="<?= date('Y-m-d', strtotime('+1 year')) ?>">
-                </div>
-                <div class="input-group">
-                    <i class="fas fa-users"></i>
-                    <select name="passengers" required>
-                        <option value="">Select Passengers</option>
-                        <?php for($i = 1; $i <= 8; $i++): ?>
-                            <option value="<?= $i ?>"><?= $i ?> Passenger<?= $i > 1 ? 's' : '' ?></option>
-                        <?php endfor; ?>
-                    </select>
-                </div>
-                <button type="submit">Search Flights <i class="fas fa-search"></i></button>
-            </form>
-        </section>
+    <?php if (isset($_GET['error'])): ?>
+        <div class="message error" style="margin-bottom: 1rem; padding: 1rem; background-color: #fee2e2; color: #dc2626; border-radius: 8px; text-align: center;">
+            <?php echo htmlspecialchars($_GET['error']); ?>
+        </div>
+    <?php endif; ?>
+    <form class="search-form" action="Book.php" method="GET" onsubmit="return validateSearch(this);">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+        <div class="input-group">
+            <i class="fas fa-plane-departure"></i>
+            <input type="text" name="departure" placeholder="From"  
+                   pattern="[A-Za-z\s]+" title="Please enter a valid city name">
+        </div>
+        <div class="input-group">
+            <i class="fas fa-plane-arrival"></i>
+            <input type="text" name="arrival" placeholder="To"  
+                   pattern="[A-Za-z\s]+" title="Please enter a valid city name">
+        </div>
+        <div class="input-group">
+            <i class="fas fa-calendar"></i>
+            <input type="date" name="date"  
+                   min="<?php echo date('Y-m-d'); ?>" 
+                   max="<?php echo date('Y-m-d', strtotime('+1 year')); ?>">
+        </div>
+        <button type="submit" name="search">Search Flights <i class="fas fa-search"></i></button>
+    </form>
+</section>
 
         <section class="destinations">
             <?php foreach ($popularDestinations as $destination): ?>
@@ -845,6 +982,28 @@ body {
     </main>
 
     <script>
+
+function validateSearch(form) {
+    const departure = form.departure.value.trim().toLowerCase();
+    const arrival = form.arrival.value.trim().toLowerCase();
+    const date = new Date(form.date.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (departure === arrival) {
+        alert('Departure and arrival cities cannot be the same');
+        return false;
+    }
+
+    if (date < today) {
+        alert('Please select a future date');
+        return false;
+    }
+
+    return true;
+}
+
+
         // Enhanced carousel functionality
         document.addEventListener('DOMContentLoaded', function() {
             let currentSlide = 0;

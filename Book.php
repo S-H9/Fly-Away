@@ -28,6 +28,54 @@ try {
     die("Database connection error. Please try again later.");
 }
 
+
+// Initialize search parameters
+$search_conditions = [];
+$search_params = [];
+$search_types = "";
+
+// Check if search parameters are provided
+if (isset($_GET['search'])) {
+    if (isset($_GET['departure']) && !empty($_GET['departure'])) {
+        $search_conditions[] = "f.departure_city LIKE ?";
+        $search_params[] = "%" . $_GET['departure'] . "%";
+        $search_types .= "s";
+    }
+
+    if (isset($_GET['arrival']) && !empty($_GET['arrival'])) {
+        $search_conditions[] = "f.arrival_city LIKE ?";
+        $search_params[] = "%" . $_GET['arrival'] . "%";
+        $search_types .= "s";
+    }
+
+    if (isset($_GET['date']) && !empty($_GET['date'])) {
+        $search_conditions[] = "DATE(f.departure_time) = ?";
+        $search_params[] = $_GET['date'];
+        $search_types .= "s";
+    }
+}
+
+// Modify the flights query to include search conditions
+$flights_sql = "SELECT f.*, 
+               (SELECT COUNT(*) FROM bookings b WHERE b.flight_id = f.flight_id AND b.status = 'confirmed') as booked_seats,
+               GROUP_CONCAT(CASE WHEN b.status = 'confirmed' THEN b.seat_number END) as taken_seats
+               FROM flights f 
+               LEFT JOIN bookings b ON f.flight_id = b.flight_id
+               WHERE f.departure_time > NOW() " .
+               (!empty($search_conditions) ? " AND " . implode(" AND ", $search_conditions) : "") . "
+               GROUP BY f.flight_id
+               ORDER BY f.departure_time ASC";
+
+if (!empty($search_params)) {
+    $stmt = $conn->prepare($flights_sql);
+    $stmt->bind_param($search_types, ...$search_params);
+    $stmt->execute();
+    $flights_result = $stmt->get_result();
+} else {
+    $flights_result = $conn->query($flights_sql);
+}
+
+
 // Session security
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -107,16 +155,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['book_flight'])) {
     }
 }
 
-// Fetch available flights with proper timezone handling
+// Search parameters
+$search_conditions = [];
+$search_params = [];
+$search_types = "";
+
+if (isset($_GET['departure']) && !empty($_GET['departure'])) {
+    $search_conditions[] = "f.departure_city LIKE ?";
+    $search_params[] = "%" . $_GET['departure'] . "%";
+    $search_types .= "s";
+}
+
+if (isset($_GET['arrival']) && !empty($_GET['arrival'])) {
+    $search_conditions[] = "f.arrival_city LIKE ?";
+    $search_params[] = "%" . $_GET['arrival'] . "%";
+    $search_types .= "s";
+}
+
+if (isset($_GET['date']) && !empty($_GET['date'])) {
+    $search_conditions[] = "DATE(f.departure_time) = ?";
+    $search_params[] = $_GET['date'];
+    $search_types .= "s";
+}
+
+// Modify the flights query to include search
 $flights_sql = "SELECT f.*, 
                (SELECT COUNT(*) FROM bookings b WHERE b.flight_id = f.flight_id AND b.status = 'confirmed') as booked_seats,
                GROUP_CONCAT(CASE WHEN b.status = 'confirmed' THEN b.seat_number END) as taken_seats
                FROM flights f 
                LEFT JOIN bookings b ON f.flight_id = b.flight_id
-               WHERE f.departure_time > NOW()
+               WHERE f.departure_time > NOW() " .
+               (!empty($search_conditions) ? " AND " . implode(" AND ", $search_conditions) : "") . "
                GROUP BY f.flight_id
                ORDER BY f.departure_time ASC";
-$flights_result = $conn->query($flights_sql);
+
+if (!empty($search_params)) {
+    $stmt = $conn->prepare($flights_sql);
+    $stmt->bind_param($search_types, ...$search_params);
+    $stmt->execute();
+    $flights_result = $stmt->get_result();
+} else {
+    $flights_result = $conn->query($flights_sql);
+}
 
 // Fetch user profile image
 $profile_sql = "SELECT profile_image FROM users WHERE user_id = ?";
@@ -552,23 +632,97 @@ font-size: 0.6rem;
     }
 }
 
+.search-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 2rem auto;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 1.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.search-form {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-input {
+    padding: 0.8rem 1.2rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    flex: 1;
+    min-width: 200px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: #0b587c;
+}
+
+.search-button {
+    padding: 0.8rem 1.5rem;
+    background: #0b587c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-button:hover {
+    background: #48a7d4;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .search-form {
+        flex-direction: column;
+    }
+    
+    .search-input {
+        width: 100%;
+    }
+    
+    .search-button {
+        width: 100%;
+    }
+}
+
+
+
 
 </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">
-            <img src="images/logo.png" alt="Fly Away Logo">
+            <img src="imges/img.png" alt="Fly Away Logo">
         </div>
         <div class="nav-links">
             <a href="homepage.php">Home</a>
             <a href="#" class="active">Book</a>
-            <a href="Flights.php">Flights</a>
+            <a href="Flights.php">My Flights</a>
             <div class="profile-button">
                 <img src="<?php echo htmlspecialchars($profile_image); ?>" alt="Profile" class="profile-img">
             </div>
         </div>
     </nav>
+
+    <div class="search-container">
+        <form method="GET" class="search-form">
+            <input type="text" name="departure" placeholder="Departure City" class="search-input">
+            <input type="text" name="arrival" placeholder="Arrival City" class="search-input">
+            <input type="date" name="date" class="search-input">
+            <button type="submit" class="search-button">Search Flights</button>
+        </form>
+    </div>
 
     <div class="booking-container">
         <h1>Available Flights</h1>

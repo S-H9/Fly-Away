@@ -127,6 +127,7 @@ body {
     justify-content: center;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    
 }
 
 .logo img {
@@ -414,8 +415,10 @@ body {
 
 .footer-bottom {
     margin-top: 2rem;
+    margin-bottom : 100px;
     font-size: 0.9rem;
     color: #ddd;
+    padding-top: -20px ;
 }
 
 /* Responsive Design */
@@ -431,14 +434,43 @@ body {
 }
 
       
-      
+      /* Cancel Button Styling */
+.cancel-button {
+    background-color: #e74c3c; /* Red background */
+    color: white; /* White text */
+    padding: 10px 20px; /* Padding */
+    border: none; /* No border */
+    border-radius: 16px; /* Rounded corners for consistent design */
+    font-size: 16px; /* Font size */
+    font-weight: bold; /* Bold text */
+    cursor: pointer; /* Pointer cursor on hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    transition: all 0.3s ease; /* Smooth transition */
+    margin-left : 27px;
+    margin-top : 3px;
+}
+
+/* Hover effect */
+.cancel-button:hover {
+    background-color: #c0392b; /* Slightly darker red on hover */
+    transform: translateY(-2px); /* Lift effect */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+}
+
+/* Active state */
+.cancel-button:active {
+    background-color: #a93226; /* Even darker red when pressed */
+    transform: translateY(0); /* Reset lift effect */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Reset shadow */
+}
+
 
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">
-            <img src="images/logo.png" alt="Fly Away Logo">
+            <img src="imges/img.png" alt="Fly Away Logo">
         </div>
         <div class="nav-links">
             <a href="homepage.php">Home</a>
