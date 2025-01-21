@@ -29,14 +29,14 @@ try {
 // Enhanced session security function
 function checkSession() {
     // Set secure session cookie parameters
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path' => '/',
-        'domain' => '',
-        'secure' => true,
-        'httponly' => true,
-        'samesite' => 'Strict'
-    ]);
+    // session_set_cookie_params([
+    //     'lifetime' => 0,
+    //     'path' => '/',
+    //     'domain' => '',
+    //     'secure' => true,
+    //     'httponly' => true,
+    //     'samesite' => 'Strict'
+    // ]);
 
     if (!isset($_SESSION['user_id'])) {
         header("Location: index.php");
@@ -869,22 +869,46 @@ body {
     }
 }
 
+.nav-links {
+    display: flex;               /* Enables Flexbox layout */
+    justify-content: flex-end;   /* Aligns items to the right */
+    align-items: center;         /* Vertically centers items */
+    position: relative;          /* Ensures relative positioning */
+    padding: 10px;               /* Adds some spacing around the links */
+}
+
+.nav-links button {
+    margin-left: 10px;           /* Adds spacing between buttons */
+}
+
+/* Media Query for Small Screens */
+@media (max-width: 768px) {
+    .nav-links {
+        flex-wrap: wrap;         /* Allows wrapping of links if screen is too small */
+        justify-content: center; /* Optional: Center-align links on small screens */
+    }
+
+    .nav-links button {
+        margin: 5px;             /* Adjusts spacing for smaller screens */
+        font-size: 12px;         /* Optional: Reduce font size for buttons */
+    }
+}
 
     </style>
 
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-content">
-            <a href="/" class="logo" style="position: absolute; left: 33px; top: 16px">
-                <img src="imges/img.png" alt="Fly Away Logo" width="60" height="60" >
-            </a>
-            <div class="nav-links"  style="display: flex; align-items: center; position:absolute; left:1400px; top:20px;">
-                <a href="#" class="active">Home</a>
-                <a href="Book.php">Book</a>
-                <a href="Flights.php">My Flights</a>
-                <div class="profile-pic" >
-                <?php
+                <nav class="navbar">
+                    <div class="navbar-content">
+                        <a href="/" class="logo">
+                            <img src="imges/img.png" alt="Fly Away Logo" width="60" height="60">
+                        </a>
+                        <div class="nav-links">
+                            <a href="#" class="active">Home</a>
+                            <a href="Book.php">Book</a>
+                            <a href="Flights.php">My Flights</a>
+                            <div class="profile-pic">
+                            <?php
                     $user_id = $_SESSION['user_id'];
                     $profile_sql = "SELECT profile_image FROM users WHERE user_id = ?";
                     $stmt = $conn->prepare($profile_sql);
@@ -894,17 +918,18 @@ body {
                         $result = $stmt->get_result();
                         $user = $result->fetch_assoc();
                         
-                        // Remove the duplicate 'uploads/' prefix since it's already in the database path
                         $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'imges/img4.jpeg';
                         echo '<img src="' . htmlspecialchars($profile_image) . '" alt="Profile Picture">';
                     }
                 ?>
-            </div>
-                
-            </div>
-            
-        </div>
-    </nav>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+               
+
+
 
     <main>
         <section class="hero-section">
