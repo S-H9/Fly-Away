@@ -1,54 +1,69 @@
-// Profile2.js
-function toggleProfile() {
-    const popup = document.getElementById('profilePopup');
-    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
-}
-
-function signOut() {
-    // Send to logout.php which will handle the session destruction
-    window.location.href = 'logout.php';
-}
-
-// Close popup when clicking outside
-window.onclick = function(event) {
-    const popup = document.getElementById('profilePopup');
-    if (event.target === popup) {
-        popup.style.display = 'none';
+document.addEventListener('DOMContentLoaded', function() {
+    const profilePic = document.querySelector('.profile-pic');
+    const profilePopup = document.createElement('div');
+    
+    // Fetch user details from the backend
+    function fetchUserDetails() {
+        fetch('get_user_details.php')
+            .then(response => response.json())
+            .then(user => {
+                // Update popup with user details
+                profilePopup.innerHTML = `
+                    <div class="profile-popup-header">
+                        <img src="${user.profile_image || 'imges/img4.jpeg'}" alt="Profile Picture">
+                        <div class="profile-popup-header-info">
+                            <h3>${user.name || 'User'}</h3>
+                            <p>${user.email || 'user@example.com'}</p>
+                        </div>
+                    </div>
+                    <div class="profile-popup-actions">
+                        <button class="edit-profile" onclick="location.href='edit_profile.php'">Edit Profile</button>
+                        <button class="sign-out" onclick="location.href='logout.php'">Sign Out</button>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error fetching user details:', error);
+                profilePopup.innerHTML = `
+                    <div class="profile-popup-header">
+                        <img src="imges/img4.jpeg" alt="Profile Picture">
+                        <div class="profile-popup-header-info">
+                            <h3>User</h3>
+                            <p>user@example.com</p>
+                        </div>
+                    </div>
+                    <div class="profile-popup-actions">
+                        <button class="edit-profile" onclick="location.href='edit_profile.php'">Edit Profile</button>
+                        <button class="sign-out" onclick="location.href='logout.php'">Sign Out</button>
+                    </div>
+                `;
+            });
     }
-}
 
-// Handle form submission
-document.getElementById('profileForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const name = document.getElementById('name').value;
-    const currentPassword = document.getElementById('currentPassword').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+    // Setup profile popup
+    profilePopup.id = 'profilePopup';
+    profilePopup.classList.add('profile-popup');
+    document.body.appendChild(profilePopup);
 
-    if (newPassword !== confirmPassword) {
-        alert('New passwords do not match!');
-        return;
-    }
+    // Toggle popup visibility
+    profilePic.addEventListener('click', function(event) {
+        event.stopPropagation(); // Prevent immediate closing
+        
+        // Toggle display
+        if (profilePopup.style.display === 'block') {
+            profilePopup.style.display = 'none';
+        } else {
+            fetchUserDetails(); // Refresh user details
+            profilePopup.style.display = 'block';
+        }
+    });
 
-    alert('Profile updated successfully!');
-    toggleProfile();
-});
-
-// Add automatic logout on page close
-window.addEventListener('beforeunload', function(e) {
-    // Make synchronous request to logout
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'auto_logout.php', false); // false makes it synchronous
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send();
-});
-
-// Also logout on tab close
-document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'hidden') {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'auto_logout.php', false);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.send();
-    }
+    // Close popup when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target !== profilePopup && 
+            !profilePopup.contains(event.target) && 
+            event.target !== profilePic) {
+            profilePopup.style.display = 'none';
+        }
+    });
 });

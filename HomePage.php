@@ -1,6 +1,16 @@
 <?php
 session_start();
 
+// Enhanced session cookie parameters
+session_set_cookie_params([
+    'lifetime' => 1800, // 30 minutes
+    'path' => '/',
+    'domain' => '',
+    'secure' => true, // Ensure cookies are only sent over HTTPS
+    'httponly' => true, // Prevent JavaScript access to cookies
+    'samesite' => 'Strict' // Prevent CSRF attacks
+]);
+
 // Security headers
 header("Content-Security-Policy: default-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;");
 header("X-Content-Type-Options: nosniff");
@@ -26,25 +36,16 @@ try {
 } catch (Exception $e) {
     die("Database connection error. Please try again later.");
 }
+
 // Enhanced session security function
 function checkSession() {
-    // Set secure session cookie parameters
-    // session_set_cookie_params([
-    //     'lifetime' => 0,
-    //     'path' => '/',
-    //     'domain' => '',
-    //     'secure' => true,
-    //     'httponly' => true,
-    //     'samesite' => 'Strict'
-    // ]);
-
     if (!isset($_SESSION['user_id'])) {
         header("Location: index.php");
         exit();
     }
 
-    // Session expiration and security checks
-    $inactive = 1800; // 30 minutes
+    // Session expiration (30 minutes)
+    $inactive = 1800;
     if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > $inactive)) {
         session_unset();
         session_destroy();
@@ -57,7 +58,7 @@ function checkSession() {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
 
-    // Regenerate session ID periodically
+    // Regenerate session ID every 5 minutes
     if (!isset($_SESSION['regenerate_time']) || (time() - $_SESSION['regenerate_time']) > 300) {
         session_regenerate_id(true);
         $_SESSION['regenerate_time'] = time();
@@ -70,7 +71,7 @@ function checkSession() {
 function checkRateLimit() {
     $max_requests = 100; // Maximum requests per minute
     $time_window = 60; // 1 minute
-    
+
     if (!isset($_SESSION['rate_limit'])) {
         $_SESSION['rate_limit'] = [
             'count' => 1,
@@ -90,6 +91,30 @@ function checkRateLimit() {
             }
         }
     }
+}
+
+// Get the selected date from the filter (default to today's date)
+$filterDate = $_GET['filter_date'] ?? date('Y-m-d');
+
+// Fetch flights for the selected date
+$flight_sql = "SELECT departure_city, arrival_city, departure_time, arrival_time 
+               FROM flights 
+               WHERE DATE(departure_time) = ? 
+               ORDER BY departure_time ASC";
+$stmt = $conn->prepare($flight_sql);
+if ($stmt) {
+    $stmt->bind_param("s", $filterDate);
+    $stmt->execute();
+    $flight_result = $stmt->get_result();
+    $dailyFlights = [];
+    if ($flight_result->num_rows > 0) {
+        while ($row = $flight_result->fetch_assoc()) {
+            $dailyFlights[] = $row;
+        }
+    }
+    $stmt->close();
+} else {
+    die("Error preparing statement: " . $conn->error);
 }
 
 // Function to safely output data
@@ -144,20 +169,10 @@ $carouselImages = [
     <meta name="description" content="Fly-Away - Your premier destination for booking flights and planning your next adventure">
     <meta name="theme-color" content="#0b587c">
     <title>Fly-Away - Your Journey Begins Here</title>
-   <!-- Shortcut Icon -->
     <link rel="icon" href="imges/img.png" type="image/x-icon">
-  
-
-    
-    <!-- Preload critical assets -->
-    <link rel="preload" href="imges/img.png" as="image">
-    <link rel="stylesheet" href="Profile2.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="Profile2.js" defer></script>
-
     <style>
-
-    /* Modern CSS Reset and Variables */
+       /* Modern CSS Reset and Variables */
 :root {
     --primary-color: #0b587c;
     --secondary-color: #48a7d4;
@@ -177,8 +192,6 @@ $carouselImages = [
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -189,19 +202,16 @@ body {
     color: var(--text-dark);
 }
 
-/* Modern Navbar */
+/* Navbar Styles */
 .navbar {
     background-color: rgba(255, 255, 255, 0.95);
     padding: 1rem 2rem;
     position: fixed;
     width: 100%;
-    height: 10%;
     top: 0;
     z-index: 1000;
     box-shadow: var(--shadow-md);
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    
 }
 
 .navbar-content {
@@ -212,39 +222,10 @@ body {
     align-items: center;
 }
 
-/* Logo Styles */
-.logo {
-    width: 60px;
-    height: 60px;
-    background-color: var(--accent-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-    transition: transform var(--transition-speed) ease;
-    
-    
-}
-
-.logo:hover {
-    transform: scale(1.05);
-}
-
-.logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  
-}
-
-/* Navigation Links */
 .nav-links {
     display: flex;
-    gap: 1rem;
     align-items: center;
-   
+    gap: 1rem;
 }
 
 .nav-links a {
@@ -279,26 +260,57 @@ body {
     color: var(--text-light);
 }
 
-/* Profile Button */
-.profile-button {
+/* Profile Container */
+.profile-container {
+    position: relative;
+}
+
+.profile-pic {
     width: 45px;
     height: 45px;
     border-radius: 50%;
     overflow: hidden;
+    border: 2px solid var(--primary-color);
+    transition: transform var(--transition-speed) ease;
     cursor: pointer;
-    border: 3px solid var(--primary-color);
-    transition: all var(--transition-speed) ease;
 }
 
-.profile-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(11, 88, 124, 0.3);
-}
-
-.profile-img {
+.profile-pic img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.profile-pic:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(11, 88, 124, 0.3);
+}
+
+.profile-popup {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--border-radius);
+    padding: 10px;
+    width: 150px;
+    display: none;
+    z-index: 1000;
+}
+
+.profile-popup a {
+    display: block;
+    padding: 8px;
+    text-decoration: none;
+    color: var(--text-dark);
+    font-size: 14px;
+    border-radius: 3px;
+    transition: background-color var(--transition-speed) ease;
+}
+
+.profile-popup a:hover {
+    background-color: #f0f0f0;
 }
 
 /* Hero Section */
@@ -416,7 +428,7 @@ body {
     color: var(--primary-color);
     pointer-events: none;
     font-size: 1.2rem;
-    transition: color 0.3s ease;
+    transition: color var(--transition-speed) ease;
 }
 
 .search-form input {
@@ -425,7 +437,7 @@ body {
     border: 2px solid #e0e0e0;
     border-radius: 12px;
     font-size: 1rem;
-    transition: all 0.3s ease;
+    transition: all var(--transition-speed) ease;
     background-color: white;
     color: #333;
 }
@@ -451,7 +463,7 @@ body {
     font-size: 1.1rem;
     font-weight: 600;
     letter-spacing: 0.5px;
-    transition: all 0.3s ease;
+    transition: all var(--transition-speed) ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -466,14 +478,14 @@ body {
 
 .search-form button i {
     font-size: 1.2rem;
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-speed) ease;
 }
 
 .search-form button:hover i {
     transform: translateX(4px);
 }
 
-/* Error message styling */
+/* Error Message */
 .message.error {
     background-color: #fee2e2;
     color: #dc2626;
@@ -497,101 +509,6 @@ body {
     }
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-    .search-form {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .quick-bar {
-        width: 92%;
-        padding: 1.5rem;
-        margin-top: -2rem;
-    }
-    
-    .search-form {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .search-form button {
-        padding: 1rem;
-    }
-}
-
-/* Date input styling */
-.search-form input[type="date"] {
-    cursor: pointer;
-    font-family: inherit;
-}
-
-.search-form input[type="date"]::-webkit-calendar-picker-indicator {
-    opacity: 0.7;
-    cursor: pointer;
-    transition: opacity 0.3s ease;
-}
-
-.search-form input[type="date"]::-webkit-calendar-picker-indicator:hover {
-    opacity: 1;
-}
-
-.input-group {
-    position: relative;
-}
-
-.input-group i {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--primary-color);
-    pointer-events: none;
-}
-
-.search-form input,
-.search-form select {
-    width: 100%;
-    padding: 1rem 1rem 1rem 3rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 1rem;
-    transition: all var(--transition-speed) ease;
-    background-color: white;
-}
-
-.search-form input:focus,
-.search-form select:focus {
-    border-color: var(--primary-color);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(11, 88, 124, 0.1);
-}
-
-.search-form button {
-    padding: 1rem;
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all var(--transition-speed) ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.search-form button:hover {
-    background-color: var(--secondary-color);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
 /* Destination Cards */
 .destinations {
     max-width: var(--container-width);
@@ -608,7 +525,6 @@ body {
     overflow: hidden;
     box-shadow: var(--shadow-md);
     transition: all var(--transition-speed) ease;
-    height: 100%;
 }
 
 .destination-card:hover {
@@ -666,19 +582,72 @@ body {
     transform: translateY(-2px);
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Footer Styles */
+.footer {
+    background: var(--primary-color);
+    color: var(--text-light);
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    gap: 2rem;
+}
+
+.footer-section {
+    flex: 1 1 calc(25% - 1rem);
+    min-width: 250px;
+}
+
+.footer-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--secondary-color);
+}
+
+.footer-section p,
+.footer-section ul {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin: 0.5rem 0;
+}
+
+.footer-section ul li a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color var(--transition-speed) ease;
+}
+
+.footer-section ul li a:hover {
+    color: var(--secondary-color);
+}
+
+.footer-bottom {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #ddd;
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+    .search-form {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
     .navbar {
         padding: 1rem;
@@ -720,6 +689,15 @@ body {
         padding: 1rem;
         grid-template-columns: 1fr;
     }
+
+    .footer-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-section {
+        text-align: center;
+    }
 }
 
 @media (max-width: 480px) {
@@ -733,7 +711,7 @@ body {
         height: 50px;
     }
 
-    .profile-button {
+    .profile-pic {
         width: 35px;
         height: 35px;
     }
@@ -755,182 +733,151 @@ body {
     }
 }
 
-/* Print Styles */
-@media print {
-    .navbar,
-    .quick-bar,
-    .hero-section {
-        display: none;
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-
-    .destinations {
-        grid-template-columns: 1fr;
-    }
-
-    .destination-card {
-        break-inside: avoid;
-        page-break-inside: avoid;
-        box-shadow: none;
-        border: 1px solid #ddd;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-
-.profile-pic {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #0b587c;
-    transition: transform 0.3s ease;
-    mar
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.profile-pic img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.flight-schedule {
+    max-width: var(--container-width);
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
 }
 
-.profile-pic:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(11, 88, 124, 0.3);
-}
-      
-      
-      /* Footer Styles */
-.footer {
-    background: #0b587c;
-    color: #fff;
-    padding: 2rem 1rem;
+.flight-schedule h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
     text-align: center;
 }
 
-.footer-container {
+.flight-schedule table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.flight-schedule th, .flight-schedule td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.flight-schedule th {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+.flight-schedule tr:hover {
+    background-color: #f9f9f9;
+}
+
+.flight-schedule td {
+    color: var(--text-dark);
+}
+
+.date-filter {
+    margin-bottom: 1.5rem;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    max-width: 1200px;
-    margin: 0 auto;
-    gap: 2rem;
+    align-items: center;
+    gap: 1rem;
 }
 
-.footer-section {
-    flex: 1 1 calc(25% - 1rem);
-    min-width: 250px;
+.date-filter label {
+    font-weight: 600;
+    color: var(--primary-color);
 }
 
-.footer-section h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #48a7d4;
-}
-
-.footer-section p,
-.footer-section ul {
+.date-filter input[type="date"] {
+    padding: 0.5rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
     font-size: 1rem;
-    line-height: 1.5;
+    transition: all var(--transition-speed) ease;
 }
 
-.footer-section ul {
-    list-style: none;
-    padding: 0;
+.date-filter input[type="date"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(11, 88, 124, 0.1);
+    outline: none;
 }
 
-.footer-section ul li {
-    margin: 0.5rem 0;
+.date-filter button {
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all var(--transition-speed) ease;
 }
 
-.footer-section ul li a {
-    color: #fff;
-    text-decoration: none;
-    transition: color 0.3s ease;
+.date-filter button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
-
-.footer-section ul li a:hover {
-    color: #48a7d4;
-}
-
-.footer-bottom {
-    margin-top: 2rem;
-    font-size: 0.9rem;
-    color: #ddd;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .footer-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .footer-section {
-        text-align: center;
-    }
-}
-
-.nav-links {
-    display: flex;               /* Enables Flexbox layout */
-    justify-content: flex-end;   /* Aligns items to the right */
-    align-items: center;         /* Vertically centers items */
-    position: relative;          /* Ensures relative positioning */
-    padding: 10px;               /* Adds some spacing around the links */
-}
-
-.nav-links button {
-    margin-left: 10px;           /* Adds spacing between buttons */
-}
-
-/* Media Query for Small Screens */
-@media (max-width: 768px) {
-    .nav-links {
-        flex-wrap: wrap;         /* Allows wrapping of links if screen is too small */
-        justify-content: center; /* Optional: Center-align links on small screens */
-    }
-
-    .nav-links button {
-        margin: 5px;             /* Adjusts spacing for smaller screens */
-        font-size: 12px;         /* Optional: Reduce font size for buttons */
-    }
-}
-
     </style>
-
 </head>
 <body>
-                <nav class="navbar">
-                    <div class="navbar-content">
-                        <a href="/" class="logo">
-                            <img src="imges/img.png" alt="Fly Away Logo" width="60" height="60">
-                        </a>
-                        <div class="nav-links">
-                            <a href="#" class="active">Home</a>
-                            <a href="Book.php">Book</a>
-                            <a href="Flights.php">My Flights</a>
-                            <div class="profile-pic">
-                            <?php
-                    $user_id = $_SESSION['user_id'];
-                    $profile_sql = "SELECT profile_image FROM users WHERE user_id = ?";
-                    $stmt = $conn->prepare($profile_sql);
-                    if ($stmt) {
-                        $stmt->bind_param("i", $user_id);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                        $user = $result->fetch_assoc();
-                        
-                        $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'imges/img4.jpeg';
-                        echo '<img src="' . htmlspecialchars($profile_image) . '" alt="Profile Picture">';
-                    }
-                ?>
-                            </div>
-                        </div>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="/" class="logo">
+                <img src="imges/img.png" alt="Fly Away Logo" width="60" height="60">
+            </a>
+            <div class="nav-links">
+                <a href="#" class="active">Home</a>
+                <a href="Book.php">Book</a>
+                <a href="Flights.php">My Flights</a>
+                <div class="profile-container">
+                    <div class="profile-pic" onclick="toggleProfilePopup()">
+                        <?php
+                        $user_id = $_SESSION['user_id'];
+                        $profile_sql = "SELECT profile_image FROM users WHERE user_id = ?";
+                        $stmt = $conn->prepare($profile_sql);
+                        if ($stmt) {
+                            $stmt->bind_param("i", $user_id);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $user = $result->fetch_assoc();
+                            $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'imges/img4.jpeg';
+                            echo '<img src="' . e($profile_image) . '" alt="Profile Picture">';
+                        }
+                        ?>
                     </div>
-                </nav>
+                    <div class="profile-popup" id="profilePopup">
+                        <a href="Profile.php">View Profile</a>
+                        <a href="Settings.php">Settings</a>
+                        <a href="Logout.php">Log Out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-               
-
-
-
+    
     <main>
         <section class="hero-section">
             <div class="carousel">
@@ -980,6 +927,42 @@ body {
     </form>
 </section>
 
+
+<section class="flight-schedule">
+    <h2>Flight Schedule</h2>
+    <form method="GET" action="" class="date-filter">
+        <label for="filter-date">Filter by Date:</label>
+        <input type="date" id="filter-date" name="filter_date" value="<?= e($_GET['filter_date'] ?? date('Y-m-d')) ?>">
+        <button type="submit">Apply Filter</button>
+    </form>
+    <table>
+    <thead>
+        <tr>
+            <th>Departure City</th>
+            <th>Arrival City</th>
+            <th>Departure Time</th>
+            <th>Arrival Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php if (!empty($dailyFlights)): ?>
+            <?php foreach ($dailyFlights as $flight): ?>
+                <tr>
+                    <td><?= e($flight['departure_city']) ?></td>
+                    <td><?= e($flight['arrival_city']) ?></td>
+                    <td><?= e(date('H:i', strtotime($flight['departure_time']))) ?></td>
+                    <td><?= e(date('H:i', strtotime($flight['arrival_time']))) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="4">No flights scheduled for the selected date.</td>
+            </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+</section>
+
         <section class="destinations">
             <?php foreach ($popularDestinations as $destination): ?>
                 <article class="destination-card">
@@ -1005,118 +988,21 @@ body {
             <?php endforeach; ?>
         </section>
     </main>
-
     <script>
+        // Toggle profile popup
+        function toggleProfilePopup() {
+            const popup = document.getElementById('profilePopup');
+            popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+        }
 
-function validateSearch(form) {
-    const departure = form.departure.value.trim().toLowerCase();
-    const arrival = form.arrival.value.trim().toLowerCase();
-    const date = new Date(form.date.value);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (departure === arrival) {
-        alert('Departure and arrival cities cannot be the same');
-        return false;
-    }
-
-    if (date < today) {
-        alert('Please select a future date');
-        return false;
-    }
-
-    return true;
-}
-
-
-        // Enhanced carousel functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            let currentSlide = 0;
-            const slides = document.querySelectorAll('.carousel img');
-            
-            function showSlide(index) {
-                slides.forEach(slide => slide.classList.remove('active'));
-                currentSlide = (index + slides.length) % slides.length;
-                slides[currentSlide].classList.add('active');
-            }
-
-            function nextSlide() {
-                showSlide(currentSlide + 1);
-            }
-
-            // Preload next image
-            function preloadNextImage() {
-                const nextIndex = (currentSlide + 1) % slides.length;
-                const nextImage = new Image();
-                nextImage.src = slides[nextIndex].src;
-            }
-
-            setInterval(() => {
-                nextSlide();
-                preloadNextImage();
-            }, 5000);
-
-            // Touch support for carousel
-            let touchStartX = 0;
-            const carousel = document.querySelector('.carousel');
-
-            carousel.addEventListener('touchstart', e => {
-                touchStartX = e.changedTouches[0].screenX;
-            }, { passive: true });
-
-            carousel.addEventListener('touchend', e => {
-                const touchEndX = e.changedTouches[0].screenX;
-                const diff = touchStartX - touchEndX;
-
-                if (Math.abs(diff) > 50) {
-                    if (diff > 0) {
-                        showSlide(currentSlide + 1);
-                    } else {
-                        showSlide(currentSlide - 1);
-                    }
-                }
-            }, { passive: true });
-        });
-
-        // Form validation
-        document.querySelector('.search-form').addEventListener('submit', function(e) {
-            const departure = this.querySelector('input[name="departure"]').value;
-            const arrival = this.querySelector('input[name="arrival"]').value;
-
-            if (departure.toLowerCase() === arrival.toLowerCase()) {
-                e.preventDefault();
-                alert('Departure and arrival cities cannot be the same');
+        // Close popup when clicking outside
+        document.addEventListener('click', function(event) {
+            const popup = document.getElementById('profilePopup');
+            const profileContainer = document.querySelector('.profile-container');
+            if (!profileContainer.contains(event.target)) {
+                popup.style.display = 'none';
             }
         });
     </script>
-  
-  
-<footer class="footer">
-    <div class="footer-container">
-        <div class="footer-section">
-            <h3>About Us</h3>
-            <p>Fly Away is dedicated to providing seamless and enjoyable flight booking experiences. Your journey starts here!</p>
-        </div>
-        <div class="footer-section">
-            <h3>Quick Links</h3>
-            <ul>
-                <li><a href="homepage.php">Home</a></li>
-                <li><a href="book.php">Book a Flight</a></li>
-                <li><a href="flights.php">Available Flights</a></li>
-            </ul>
-        </div>
-        <div class="footer-section">
-            <h3>Contact Us</h3>
-            <p>Email: support@flyaway.com</p>
-            <p>Phone: +966 534 567 890</p>
-            <p>Address: JUC UQU, CS</p>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <p>&copy; 2025 Fly Away-JUC. All Rights Reserved.</p>
-    </div>
-</footer>
-  
-
 </body>
 </html>
