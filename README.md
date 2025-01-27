@@ -31,7 +31,7 @@ First Method: Using XAMPP
 ### Second Method: Using the Link
 - Ensure the XAMPP server is running.
 - Open the application directly using this link in any browser:
-- flyaway-juc.ddnsking.com
+- Link: flyaway-juc.ddnsking.com
 ## Usage
 ## Features 
 ### 1-Registration:
