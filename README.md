@@ -5,22 +5,33 @@
  Our software aims to reduce the complexity of travel arrangements to provide an intuitive
  platform that saves time.
 ## Installation
-- Download **"XAMPP"** according to the device version, Windows, Mac, etc 
-Version (8.2.12 / PHP 8.2.12) Size (149 Mb)
-
-Link: **https://www.apachefriends.org/download.html**
-- Press the **"Start"** button in **"Apache"** and also in **"Mysql"**.
-- Press the **"Admin"** button in **"Mysql"** to open a page for the database **"phpMyAdmin"** Create a database **"New"** Name the database **"Fly_away"** and place the sent code:
+First Method: Using XAMPP
+### 1-Download XAMPP:
+- Download the **"XAMPP"** version suitable for your device (Windows, Mac, etc.).
+- Version: 8.2.12 / PHP 8.2.12
+- Size: 149 MB
+- Link: **https://www.apachefriends.org/download.html**
+### 2-Start XAMPP Services:
+- Open XAMPP and press the **"Start"** button for both **"Apache"** and **"MySQL"** services.
+### 3-Create a Database:
+- Press the **"Admin"** button under MySQL to open the **"phpMyAdmin"** page.
+- Create a new database by clicking **"New"** and name it **"Fly_away"**.
+- Paste the following code into the SQL editor and press the **"Start"** or **"Execute"** button:
   
     CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP );
-  
-And press the **"Start or Execute"** button.
-- Press the **"Explorer"** button and place the **"Fly away"** files in the **"htdocs"** file.
-- Press the **"Admin"** button in **"“Apache"** and the web page will open with you.
+### Add Project Files:
+- Press the **"Explorer"** button in XAMPP.
+- Place the project files (Fly Away) in the **"htdocs"** folder.
+### Run the Application:
+- Press the **"Admin"** button under Apache to open the application’s web page in your browser.
+### Second Method: Using the Link
+- Ensure the XAMPP server is running.
+- Open the application directly using this link in any browser:
+- flyaway-juc.ddnsking.com
 ## Usage
 ## Features 
 ### 1-Registration:
