@@ -31,5 +31,6 @@ And press the **"Start or Execute"** button.
 - The "Flight Booking" feature allows users to search for flights, select their desired flight, and reserve an appropriate seat. Users input details such as travel dates, destination, and passenger information, which are validated by the system. Once a flight is selected, users can choose a seat from the available options displayed on a seat map. After confirming the reservation, the system stores the booking details, including the passenger's name, flight information, and seat number, in a secure database.This ensures a seamless and secure booking experience, with all details securely saved for future reference or modifications.
 ### 4-Flight History:
 - The "Flight History" feature enables users to track and manage all their past flights in one convenient place. Each time a user completes a flight booking, the system automatically records details such as flight number, flight name, departure and arrival times, destinations, seat number, and ticket class. This data is securely stored in the database and can be accessed through the user's profile. Users can view their flight history to track their travel patterns.
+### 4-Flight History:
 ## Contributing
 ## License
