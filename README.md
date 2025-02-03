@@ -56,4 +56,18 @@ And press the **"Start or Execute"** button.
 ### 5-Booking Management: 
 - The "Booking Management" feature allows users to view, or cancel their flight reservations. Users can access their bookings through their profile, where the system displays all active reservations.Cancellation requests are processed according to the airline's policies, with refunds All changes are updated in real-time and saved in the database.
 ### 6-Flight Booking Filter:
-- The "Flight Booki
+- The "Flight Booking Filter" feature helps users streamline their flight search by applying various criteria, such as departure time, arrival time, airline, ticket class, price range, and layovers. After users enter their preferences, the system filters the available flights and displays the most relevant options. This feature enhances the user experience by making the flight search faster and more tailored to individual needs.
+### 7-Customer Support: 
+- The "Customer Support" feature offers users assistance with any issues or questions related to their accounts, bookings, or other services. Support is available through multiple channels, such as  email, or phone, All support interactions are logged securely for quality assurance and future reference.
+### 8-Payment Options: 
+- The "Payment Options" feature enables users to complete their transactions securely and conveniently. Users can choose from multiple payment methods, such as credit/debit cards, digital wallets. The system ensures all payment details are encrypted and processed securely using payment gateways compliant with industry standards. After a successful payment, a confirmation receipt is generated and sent to the user, while the booking details are updated in the database.
+### 9-Flight Management: 
+- The "Flight Management" feature is designed for administrators to manage the airline’s flight schedules and availability. It allows admins to add, update, or remove flights, configure seat availability, and adjust pricing dynamically. The system ensures real-time updates so users see the latest information when searching for flights. Flight data, including schedules, routes, and fare details, is stored securely in the database, enabling efficient operations and accurate user interactions.
+### 10-Quick Searching for a Flight: 
+- The "Quick Searching for a Flight" feature allows users to swiftly find flights based on minimal input. Users can enter essential details like departure and destination cities, travel dates. The system instantly processes the query. This feature prioritizes speed and simplicity, ensuring users can quickly find and book flights without navigating complex filters or forms.
+### 11-User Profile:
+- The "User Profile" feature provides users with a personalized space to manage their account and preferences. Users can view and update their personal information, such as name, email, and contact details. The profile also serves as a central hub for accessing flight history, active bookings, payment methods, and notification settings. All updates to the profile are securely validated and saved, ensuring data consistency and user convenience.
+### 12-Flights Dashboard: 
+- The "Flights Dashboard" feature gives users insights into their travel patterns and booking habits. Users can view data such as the total number of flights booked. This feature helps users plan future trips more effectively and track their travel history in a meaningful way.
+## Contributing
+## License
