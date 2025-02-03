@@ -15,25 +15,9 @@ First Method: Using XAMPP
 - Link: **https://www.apachefriends.org/download.html**
 ### 2-Start XAMPP Services:
 - Open XAMPP and press the **"Start"** button for both **"Apache"** and **"MySQL"** services.
-### 3-Create a Database:
-- Press the **"Admin"** button under MySQL to open the **"phpMyAdmin"** page.
-- Create a new database by clicking **"New"** and name it **"Fly_away"**.
-- Paste the following code into the SQL editor and press the **"Start"** or **"Execute"** button:
+### 3-Import a Database:
+- open the **XAMPP** and make server action By pressing the button **Start** For both Module **Apache** and **MySQL** Next step go to button **Admin** in Actions MySQL and thin He will take you to a page PHPMyAdmin and thin click on **New** Next go to **Import** to the taskbar next click **Choose File** and Select the file that contains MySQL next click **Open** and thin click **Import** To show you the contents.
 
-Link: **https://www.apachefriends.org/download.html**
-- Press the **"Start"** button in **"Apache"** and also in **"Mysql"**.
-- Press the **"Admin"** button in **"Mysql"** to open a page for the database **"phpMyAdmin"** Create a database **"New"** Name the database **"Fly_away"** and place the sent code:
-  
-    CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP );
-  
-And press the **"Start or Execute"** button.
-- Press the **"Explorer"** button and place the **"Fly away"** files in the **"htdocs"** file.
-- Press the **"Admin"** button in **"“Apache"** and the web page will open with you.
-### Add Project Files:
 - Press the **"Explorer"** button in XAMPP.
 - Place the project files (Fly Away) in the **"htdocs"** folder.
 ### Run the Application:
