@@ -417,24 +417,10 @@ body {
                 <a href="homepage.php">Home</a>
                 <a href="adminBook.php">Book</a>
                 <a href="#" class="active" style="background-color: #0b587c; color: white; padding: 14px 16px; border-radius: 25px;">Flights</a>
+                
             </div>
-            <div class="profile-pic" >
-                <?php
-                    $user_id = $_SESSION['user_id'];
-                    $profile_sql = "SELECT profile_image FROM users WHERE user_id = ?";
-                    $stmt = $conn->prepare($profile_sql);
-                    if ($stmt) {
-                        $stmt->bind_param("i", $user_id);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-                        $user = $result->fetch_assoc();
-                        
-                        // Remove the duplicate 'uploads/' prefix since it's already in the database path
-                        $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'imges/img4.jpeg';
-                        echo '<img src="' . htmlspecialchars($profile_image) . '" alt="Profile Picture">';
-                    }
-                ?>
-            </div>
+            <?php include 'profilePopup.php'; ?>
+
         </div>
     </div>
 </nav>

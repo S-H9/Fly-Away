@@ -844,36 +844,12 @@ body {
 <body>
     <nav class="navbar">
         <div class="navbar-content">
-            <a href="/" class="logo">
                 <img src="imges/img.png" alt="Fly Away Logo" width="60" height="60">
-            </a>
             <div class="nav-links">
                 <a href="#" class="active">Home</a>
                 <a href="Book.php">Book</a>
                 <a href="Flights.php">My Flights</a>
-                <div class="profile-container">
-                    <div class="profile-pic" onclick="toggleProfilePopup()">
-                        <?php
-                        $user_id = $_SESSION['user_id'];
-                        $profile_sql = "SELECT profile_image FROM users WHERE user_id = ?";
-                        $stmt = $conn->prepare($profile_sql);
-                        if ($stmt) {
-                            $stmt->bind_param("i", $user_id);
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            $user = $result->fetch_assoc();
-                            $profile_image = !empty($user['profile_image']) ? $user['profile_image'] : 'imges/img4.jpeg';
-                            echo '<img src="' . e($profile_image) . '" alt="Profile Picture">';
-                        }
-                        ?>
-                    </div>
-                    <div class="profile-popup" id="profilePopup">
-                        <a href="Profile.php">View Profile</a>
-                        <a href="Settings.php">Settings</a>
-                        <a href="Logout.php">Log Out</a>
-                    </div>
-                </div>
-            </div>
+                <?php include 'profilePopup.php'; ?>
         </div>
     </nav>
 

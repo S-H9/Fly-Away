@@ -476,9 +476,7 @@ body {
             <a href="homepage.php">Home</a>
             <a href="book.php">Book</a>
             <a href="#" class="active">My Flights</a>
-            <div class="profile-button">
-                <img src="<?php echo htmlspecialchars($profile_image); ?>" alt="Profile" class="profile-img">
-            </div>
+            <?php include 'profilePopup.php'; ?>
         </div>
     </nav>
 
@@ -588,6 +586,8 @@ body {
             <p>Email: support@flyaway.com</p>
             <p>Phone: +966 534 567 890</p>
             <p>Address: JUC UQU, CS</p>
+
+            
         </div>
     </div>
     <div class="footer-bottom">
