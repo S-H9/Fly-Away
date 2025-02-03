@@ -22,7 +22,8 @@ SET time_zone = "+00:00";
 --
 
 
-CREATE Database 'fly_away';
+CREATE DATABASE IF NOT EXISTS `fly_away`;
+USE `fly_away`;
 
 -- --------------------------------------------------------
 
