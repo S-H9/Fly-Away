@@ -17,9 +17,6 @@ First Method: Using XAMPP
 - Open XAMPP and press the **"Start"** button for both **"Apache"** and **"MySQL"** services.
 ### 3-Import a Database:
 - open the **XAMPP** and make server action By pressing the button **Start** For both Module **Apache** and **MySQL** Next step go to button **Admin** in Actions MySQL and thin He will take you to a page PHPMyAdmin and thin click on **New** Next go to **Import** to the taskbar next click **Choose File** and Select the file that contains MySQL next click **Open** and thin click **Import** To show you the contents.
-
-- Press the **"Explorer"** button in XAMPP.
-- Place the project files (Fly Away) in the **"htdocs"** folder.
 ### Run the Application:
 - Press the **"Admin"** button under Apache to open the application’s web page in your browser.
 ### Second Method: Using the Link
