@@ -909,7 +909,7 @@ font-size: 0.6rem;
         }
 
         // Construct the URL with all necessary parameters
-        const paymentUrl = new URL('http://localhost/FlyAway/paymentPage.php', window.location.origin);
+        const paymentUrl = new URL('http://localhost/Fly-Away/paymentPage.php', window.location.origin);
         paymentUrl.searchParams.set('flight_id', this.querySelector('input[name="flight_id"]').value);
         paymentUrl.searchParams.set('class', this.querySelector('select[name="class"]').value);
         paymentUrl.searchParams.set('seat_number', selectedSeat);
